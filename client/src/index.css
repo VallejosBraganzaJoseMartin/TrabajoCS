@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Reset global para eliminar espacios en blanco */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+}
+
+/* Configuración de fuentes y estilos globales */
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: #F8F9FA;
+  margin: 0;
+  padding: 0;
+}
