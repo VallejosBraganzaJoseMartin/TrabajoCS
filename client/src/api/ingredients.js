@@ -38,5 +38,14 @@ export const ingredientsApi = {
       console.error('Error al eliminar ingrediente:', error);
       throw error;
     }
+  },
+  getAllByPizzaId: async (pizzaId) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/pizza-ingredients/${pizzaId}`);
+      return response.data.data; // Solo el array de ingredientes
+    } catch (error) {
+      console.error('Error al obtener ingredientes de la pizza:', error);
+      throw error;
+    }
   }
 };

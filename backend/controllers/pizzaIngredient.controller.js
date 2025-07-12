@@ -28,10 +28,15 @@ const getIngredientsByPizza = async (req, res) => {
       }]
     });
 
-    const data = ingredients.map(pi => ({
-      ...pi.Ingredient.dataValues,
-      piz_ing_quantity: pi.piz_ing_quantity
-    }));
+    const data = ingredients.map(pi => {
+      if (!pi.Ingredient) {
+        return null;
+      }
+      return {
+        ...pi.Ingredient.dataValues,
+        piz_ing_quantity: pi.piz_ing_quantity
+      };
+    }).filter(Boolean);
     res.status(200).json({
       message: 'Ingredientes obtenidos',
       data

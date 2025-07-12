@@ -41,4 +41,7 @@ Ingredient.belongsToMany(Pizza, {
   otherKey: 'piz_id',
 });
 
+// Asociación necesaria para el include en el controlador
+PizzaIngredient.belongsTo(Ingredient, { foreignKey: 'ing_id' });
+
 module.exports = PizzaIngredient;
