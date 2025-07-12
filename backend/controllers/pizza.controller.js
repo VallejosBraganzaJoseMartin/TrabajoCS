@@ -32,9 +32,9 @@ const getPizzaById = async (req, res) => {
 };
 
 const createPizza = async (req, res) => {
-  const { piz_name, piz_origin, piz_state } = req.body;
+  const { piz_name, piz_origin, piz_state, url_image } = req.body;
   try {
-    const pizza = await Pizza.create({ piz_name, piz_origin, piz_state });
+    const pizza = await Pizza.create({ piz_name, piz_origin, piz_state, url_image });
     res.status(200).json({
       message: 'Pizza creada',
       body: { pizza }
@@ -49,10 +49,10 @@ const createPizza = async (req, res) => {
 
 const updatePizza = async (req, res) => {
   const id = req.params.id;
-  const { piz_name, piz_origin, piz_state } = req.body;
+  const { piz_name, piz_origin, piz_state, url_image } = req.body;
   try {
     const [updated] = await Pizza.update(
-      { piz_name, piz_origin, piz_state },
+      { piz_name, piz_origin, piz_state, url_image },
       { where: { piz_id: id }, returning: true }
     );
     if (updated) {

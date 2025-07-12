@@ -28,10 +28,11 @@ const PizzaTable = ({ pizzas, loading, error, onDelete, onEdit }) => {
       {/* Cabecera */}
       <div className="grid grid-cols-12 px-6 py-3 bg-[#f5f5f4] text-xs font-semibold text-gray-500 uppercase">
         <div className="col-span-1">ID</div>
-        <div className="col-span-4">Pizza</div>
-        <div className="col-span-3">Origen</div>
+        <div className="col-span-3">Pizza</div>
+        <div className="col-span-2">Origen</div>
+        <div className="col-span-3">Imagen (URL)</div>
         <div className="col-span-2">Estado</div>
-        <div className="col-span-2">Acciones</div>
+        <div className="col-span-1">Acciones</div>
       </div>
       {/* Filas */}
       <div className="divide-y divide-gray-200">
@@ -46,8 +47,17 @@ const PizzaTable = ({ pizzas, loading, error, onDelete, onEdit }) => {
               className="grid grid-cols-12 px-6 py-4 items-center text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
             >
               <div className="col-span-1">#{pizza.piz_id}</div>
-              <div className="col-span-4 font-semibold">{pizza.piz_name}</div>
-              <div className="col-span-3">{pizza.piz_origin || 'No especificado'}</div>
+              <div className="col-span-3 font-semibold">{pizza.piz_name}</div>
+              <div className="col-span-2">{pizza.piz_origin || 'No especificado'}</div>
+              <div className="col-span-3">
+                {pizza.url_image ? (
+                  <a href={pizza.url_image} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline truncate block max-w-[180px]" title={pizza.url_image}>
+                    {pizza.url_image}
+                  </a>
+                ) : (
+                  <span className="text-gray-400 italic">Sin imagen</span>
+                )}
+              </div>
               <div className="col-span-2">
                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                   pizza.piz_state 
@@ -57,7 +67,7 @@ const PizzaTable = ({ pizzas, loading, error, onDelete, onEdit }) => {
                   {pizza.piz_state ? 'Activo' : 'Inactivo'}
                 </span>
               </div>
-              <div className="col-span-2 flex space-x-3">
+              <div className="col-span-1 flex space-x-3">
                 <button 
                   className="text-gray-400 hover:text-blue-600 transition-colors duration-200"
                   onClick={() => onEdit(pizza)}

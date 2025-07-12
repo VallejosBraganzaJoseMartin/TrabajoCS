@@ -20,6 +20,10 @@ const Pizza = sequelize.define('Pizza', {
     allowNull: false,
     defaultValue: true,
   },
+  url_image: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+  },
 }, {
   tableName: 'Pizzas',
   timestamps: false,

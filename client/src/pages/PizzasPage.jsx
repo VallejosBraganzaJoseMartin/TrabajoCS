@@ -44,7 +44,8 @@ const PizzasPage = ({ onNavigate, currentPage }) => {
     const pizzaData = {
       piz_name: form.piz_name.value,
       piz_origin: form.piz_origin.value,
-      piz_state: form.piz_state.value === "true"
+      piz_state: form.piz_state.value === "true",
+      url_image: form.url_image.value
     };
     try {
       if (modalMode === "edit" && editingPizza) {

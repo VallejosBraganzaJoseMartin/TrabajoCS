@@ -8,6 +8,7 @@ const PizzaModal = ({ open, onClose, onSubmit, pizza, mode = "create" }) => {
       formRef.current.piz_name.value = pizza.piz_name || "";
       formRef.current.piz_origin.value = pizza.piz_origin || "";
       formRef.current.piz_state.value = pizza.piz_state ? "true" : "false";
+      formRef.current.url_image.value = pizza.url_image || "";
     } else if (open && formRef.current) {
       formRef.current.reset();
     }
@@ -59,6 +60,15 @@ const PizzaModal = ({ open, onClose, onSubmit, pizza, mode = "create" }) => {
                   name="piz_origin"
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-transparent transition-shadow"
                   placeholder="Ej: Nápoles, Italia"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Imagen (URL)</label>
+                <input
+                  name="url_image"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-transparent transition-shadow"
+                  placeholder="https://..."
+                  type="url"
                 />
               </div>
               <div>
