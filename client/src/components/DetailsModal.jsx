@@ -33,7 +33,7 @@ const PizzaDetailsModal = ({ open, onClose, pizza }) => {
     name: "Margherita",
     origin: "Nápoles, Italia",
     state: true,
-    imageUrl: "https://dynamoprojects.com/wp-content/uploads/2022/12/no-image.jpg",
+    imageUrl: "https://images.unsplash.com/photo-1598021680133-eb3a737d7a2b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80",
   };
 
   const pizzaName = displayPizza.name || displayPizza.piz_name;
