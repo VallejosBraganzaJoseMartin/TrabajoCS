@@ -72,7 +72,9 @@ const MenuPage = () => {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {Array.isArray(pizzas) && pizzas.map((pizza) => (
+                  {Array.isArray(pizzas) && pizzas
+                    .filter(pizza => pizza.piz_state === true || pizza.piz_state === 'true')
+                    .map((pizza) => (
                     <div key={pizza.piz_id || pizza.id} className="bg-white rounded-lg shadow-md overflow-hidden group">
                       <div className="relative">
                         <img 
