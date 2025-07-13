@@ -1,17 +1,26 @@
 import React, {useState} from 'react';
 import { authApi } from '../api/auth';
+import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await authApi.login({ user_email: email, user_password: password });
-      console.log(response)
+      console.log('login response:', response);
+      // Soporta ambas estructuras: axios (response.data) o fetch (response)
+      const token = response.data?.token || response.token;
+      const user = response.data?.user || response.user;
+      login(token, user);
+      navigate('/menu', { replace: true });
     } catch (error) {
-      console.log("todo mal")
+      console.log("todo mal", error)
     }
   };
 

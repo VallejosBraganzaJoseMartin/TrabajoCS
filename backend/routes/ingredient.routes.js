@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const ingredientController = require('../controllers/ingredient.controller');
+const { authenticateToken } = require('../controllers/auth.controller');
 
-router.get('/', ingredientController.getIngredients);
-router.get('/:id', ingredientController.getIngredientById);
-router.post('/', ingredientController.createIngredient);
-router.put('/:id', ingredientController.updateIngredient);
-router.delete('/:id', ingredientController.deleteIngredient);
+router.get('/', authenticateToken, ingredientController.getIngredients);
+router.get('/:id', authenticateToken, ingredientController.getIngredientById);
+router.post('/', authenticateToken, ingredientController.createIngredient);
+router.put('/:id', authenticateToken, ingredientController.updateIngredient);
+router.delete('/:id', authenticateToken, ingredientController.deleteIngredient);
 
 module.exports = router;

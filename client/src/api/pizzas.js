@@ -1,4 +1,5 @@
 import axios from 'axios';
+import apiClient from './apiClient';
 
 const API_BASE_URL = 'http://localhost:3000/api';
 
@@ -6,7 +7,7 @@ export const pizzasApi = {
   // Obtener todas las pizzas
   getAll: async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/pizzas`);
+      const response = await apiClient.get(`/pizzas`);
       return response.data;
     } catch (error) {
       console.error('Error al obtener pizzas:', error);
@@ -17,7 +18,7 @@ export const pizzasApi = {
   // Obtener una pizza por ID
   getById: async (id) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/pizzas/${id}`);
+      const response = await apiClient.get(`/pizzas/${id}`);
       return response.data;
     } catch (error) {
       console.error('Error al obtener pizza:', error);
@@ -28,7 +29,7 @@ export const pizzasApi = {
   // Crear una nueva pizza
   create: async (pizzaData) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/pizzas`, pizzaData);
+      const response = await apiClient.post(`/pizzas`, pizzaData);
       return response.data;
     } catch (error) {
       console.error('Error al crear pizza:', error);
@@ -39,7 +40,7 @@ export const pizzasApi = {
   // Actualizar una pizza
   update: async (id, pizzaData) => {
     try {
-      const response = await axios.put(`${API_BASE_URL}/pizzas/${id}`, pizzaData);
+      const response = await apiClient.put(`/pizzas/${id}`, pizzaData);
       return response.data;
     } catch (error) {
       console.error('Error al actualizar pizza:', error);
@@ -50,7 +51,7 @@ export const pizzasApi = {
   // Eliminar una pizza
   delete: async (id) => {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/pizzas/${id}`);
+      const response = await apiClient.delete(`/pizzas/${id}`);
       return response.data;
     } catch (error) {
       console.error('Error al eliminar pizza:', error);

@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const pizzaController = require('../controllers/pizza.controller');
+const { authenticateToken } = require('../controllers/auth.controller');
 
-router.get('/', pizzaController.getPizzas);
-router.get('/:id', pizzaController.getPizzaById);
-router.post('/', pizzaController.createPizza);
-router.put('/:id', pizzaController.updatePizza);
-router.delete('/:id', pizzaController.deletePizza);
+router.get('/', authenticateToken, pizzaController.getPizzas);
+router.get('/:id', authenticateToken, pizzaController.getPizzaById);
+router.post('/', authenticateToken, pizzaController.createPizza);
+router.put('/:id', authenticateToken, pizzaController.updatePizza);
+router.delete('/:id', authenticateToken, pizzaController.deletePizza);
 
 module.exports = router;
