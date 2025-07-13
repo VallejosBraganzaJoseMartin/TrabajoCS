@@ -5,7 +5,7 @@ import PizzaTable from "../components/PizzaTable";
 import PizzaModal from "../components/PizzaModal";
 import { pizzasApi } from "../api/pizzas";
 
-const PizzasPage = ({ onNavigate, currentPage }) => {
+const PizzasPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create"); // "create" o "edit"
   const [editingPizza, setEditingPizza] = useState(null);
@@ -111,7 +111,13 @@ const PizzasPage = ({ onNavigate, currentPage }) => {
               </svg>
               Listado de Pizzas
             </h2>
-            <PizzaTable pizzas={pizzas} loading={loading} error={error} onDelete={handleDelete} onEdit={handleEdit} />
+            <PizzaTable
+              pizzas={pizzas}
+              loading={loading}
+              error={error}
+              onDelete={handleDelete}
+              onEdit={handleEdit}
+            />
           </div>
         </main>
         <PizzaModal open={modalOpen} onClose={handleCloseModal} onSubmit={handleSubmit} pizza={editingPizza} mode={modalMode} />

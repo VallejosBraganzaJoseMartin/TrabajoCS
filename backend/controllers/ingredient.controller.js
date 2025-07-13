@@ -2,7 +2,12 @@ const Ingredient = require('../models/Ingredient.model');
 
 const getIngredients = async (req, res) => {
   try {
-    const ingredients = await Ingredient.findAll();
+    const ingredients = await Ingredient.findAll({
+      order: [
+        ['ing_state', 'DESC'],
+        ['ing_id', 'ASC']
+      ] 
+    });
     res.status(200).json({
       message: 'Ingredientes obtenidos',
       data: ingredients

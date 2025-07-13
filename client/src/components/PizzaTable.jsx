@@ -1,6 +1,9 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const PizzaTable = ({ pizzas, loading, error, onDelete, onEdit }) => {
+  const navigate = useNavigate();
+
   if (loading) {
     return (
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -76,6 +79,15 @@ const PizzaTable = ({ pizzas, loading, error, onDelete, onEdit }) => {
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
                     <path fillRule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clipRule="evenodd" />
+                  </svg>
+                </button>
+                <button 
+                  className="text-gray-400 hover:text-green-600 transition-colors duration-200"
+                  onClick={() => navigate(`/pizzas/${pizza.piz_id}/ingredientes`)}
+                  title="Gestionar ingredientes"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                   </svg>
                 </button>
                 <button 

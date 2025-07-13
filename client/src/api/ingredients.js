@@ -47,5 +47,33 @@ export const ingredientsApi = {
       console.error('Error al obtener ingredientes de la pizza:', error);
       throw error;
     }
-  }
+  },
+  addToPizza: async ({ piz_id, ing_id, piz_ing_quantity }) => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/pizza-ingredients`, {
+        piz_id,
+        ing_id,
+        piz_ing_quantity
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  removeFromPizza: async (piz_id, ing_id) => {
+    try {
+      const response = await axios.delete(`${API_BASE_URL}/pizza-ingredients/${piz_id}/${ing_id}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  updateQuantity: async (piz_id, ing_id, piz_ing_quantity) => {
+    try {
+      const response = await axios.put(`${API_BASE_URL}/pizza-ingredients/${piz_id}/${ing_id}`, { piz_ing_quantity });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
 };

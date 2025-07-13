@@ -2,7 +2,12 @@ const Pizza = require('../models/Pizza.model');
 
 const getPizzas = async (req, res) => {
   try {
-    const pizzas = await Pizza.findAll();
+    const pizzas = await Pizza.findAll({
+      order: [
+        ['piz_state', 'DESC'],
+        ['piz_id', 'ASC']
+      ]
+    });
     res.status(200).json({
       message: 'Pizzas obtenidas',
       data: pizzas
