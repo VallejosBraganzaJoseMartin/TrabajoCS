@@ -1,5 +1,6 @@
 const User = require('../models/User.model');
 const Role = require('../models/Role.model');
+const bcrypt = require('bcryptjs');
 
 const getUsers = async (req, res) => {
   try {
@@ -39,8 +40,9 @@ const updateUser = async (req, res) => {
   const id = req.params.id;
   const { user_names, user_surenames, user_email, user_password, role_id, user_state } = req.body;
   try {
+    const hashedPassword = user_password ? await bcrypt.hash(user_password, 10) : undefined;
     const [updated] = await User.update(
-      { user_names, user_surenames, user_email, user_password, role_id, user_state },
+      { user_names, user_surenames, user_email, user_password: hashedPassword, role_id, user_state },
       { where: { user_id: id } }
     );
     if (updated) {

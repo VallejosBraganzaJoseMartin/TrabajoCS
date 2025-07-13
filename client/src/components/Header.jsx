@@ -13,6 +13,8 @@ const Header = ({ currentPage }) => {
         return "Ingredientes";
       case "/menu":
         return "Menú";
+      case "/gestion":
+        return "Gestión de Usuarios";
       default:
         return "Pizzas";
     }
