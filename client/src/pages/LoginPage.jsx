@@ -36,7 +36,7 @@ export default function LoginPage() {
         <div className="absolute inset-0 bg-black bg-opacity-50"></div>
         <div className="absolute bottom-10 left-10 text-white">
           <h1 className="text-4xl font-bold">PizzAPI</h1>
-          <p className="mt-2 text-lg text-gray-300">La gestión de tu pizzería, simplificada.</p>
+          <p className="mt-2 text-lg text-gray-300">Mejor que el siiu.</p>
         </div>
       </div>
 
@@ -52,13 +52,13 @@ export default function LoginPage() {
               <span>PizzAPI</span>
             </a>
             <h2 className="mt-6 text-3xl font-extrabold text-gray-900">Bienvenido de nuevo</h2>
-            <p className="mt-2 text-sm text-gray-600">Por favor, inicia sesión para acceder a tu panel.</p>
+            <p className="mt-2 text-sm text-gray-600">Por favor, inicia sesión para acceder al papusistema.</p>
           </div>
 
           <form className="space-y-6" autoComplete="off" onSubmit={handleSubmit}>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Dirección de Email
+                Email
               </label>
               <div className="mt-1">
                 <input
