@@ -1,11 +1,12 @@
 const User = require('../models/User.model');
 const Role = require('../models/Role.model');
+const UsuarioRol = require('../models/UsuarioRol.model');
 const bcrypt = require('bcryptjs');
 
 const getUsers = async (req, res) => {
   try {
     const users = await User.findAll({
-      include: [{ model: Role, as: 'role', attributes: ['role_id', 'role_name'] }],
+      include: [{ model: Role, as: 'roles', through: { attributes: [] }, attributes: ['role_id', 'role_name'] }],
       order: [['user_id', 'ASC']]
     });
     res.status(200).json({ message: 'Usuarios obtenidos', data: users });
@@ -18,7 +19,7 @@ const getUserById = async (req, res) => {
   const id = req.params.id;
   try {
     const user = await User.findByPk(id, {
-      include: [{ model: Role, as: 'role', attributes: ['role_id', 'role_name'] }]
+      include: [{ model: Role, as: 'roles', through: { attributes: [] }, attributes: ['role_id', 'role_name'] }]
     });
     res.status(200).json({ message: 'Usuario obtenido', data: user });
   } catch (error) {
@@ -26,28 +27,22 @@ const getUserById = async (req, res) => {
   }
 };
 
-/* const createUser = async (req, res) => {
-  const { user_names, user_surenames, user_email, user_password, role_id, user_state } = req.body;
-  try {
-    const user = await User.create({ user_names, user_surenames, user_email, user_password, role_id, user_state });
-    res.status(200).json({ message: 'Usuario creado', data: user });
-  } catch (error) {
-    res.status(500).json({ message: 'Error al crear el usuario', error });
-  }
-}; */
-
 const updateUser = async (req, res) => {
   const id = req.params.id;
-  const { user_names, user_surenames, user_email, user_password, role_id, user_state } = req.body;
+  const { user_names, user_surenames, user_email, user_password, user_state } = req.body;
   try {
     const hashedPassword = user_password ? await bcrypt.hash(user_password, 10) : undefined;
-    const [updated] = await User.update(
-      { user_names, user_surenames, user_email, user_password: hashedPassword, role_id, user_state },
-      { where: { user_id: id } }
-    );
+    const updateData = {
+      user_names,
+      user_surenames,
+      user_email,
+      user_state
+    };
+    if (hashedPassword) updateData.user_password = hashedPassword;
+    const [updated] = await User.update(updateData, { where: { user_id: id } });
     if (updated) {
       const updatedUser = await User.findByPk(id, {
-        include: [{ model: Role, as: 'role', attributes: ['role_id', 'role_name'] }]
+        include: [{ model: Role, as: 'roles', through: { attributes: [] }, attributes: ['role_id', 'role_name'] }]
       });
       res.status(200).json({ message: 'Usuario actualizado', data: updatedUser });
     } else {
@@ -75,7 +70,6 @@ const deleteUser = async (req, res) => {
 module.exports = {
   getUsers,
   getUserById,
-  /* createUser, */
   updateUser,
   deleteUser
 };

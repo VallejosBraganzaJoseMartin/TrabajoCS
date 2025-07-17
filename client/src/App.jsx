@@ -8,6 +8,7 @@ import UsersPage from './pages/UsersPage';
 import ManagePizzaIngredients from './components/ManagePizzaIngredients';
 import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute';
+import RolesPage from './pages/RolesPage';
 import './App.css';
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
             <Route path="/ingredientes" element={<IngredientsPage />} />
             <Route path="/gestion" element={<UsersPage />} />
             <Route path="/pizzas/:id/ingredientes" element={<ManagePizzaIngredients />} />
+            <Route path="/roles" element={<RolesPage />} />
             <Route path="*" element={<Navigate to="/pizzas" replace />} />
           </Route>
         </Routes>

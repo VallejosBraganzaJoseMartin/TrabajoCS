@@ -25,7 +25,9 @@ export const rolesApi = {
       const roles = response.data.data || response.data;
       return roles.map(role => ({
         id: role.role_id,
-        name: role.role_name
+        name: role.role_name,
+        descripcion: role.role_descripcion,
+        state: role.role_state
       }));
     } catch (error) {
       console.error('Error al obtener roles:', error);
@@ -38,13 +40,17 @@ export const rolesApi = {
     try {
       // Mapear al formato esperado por el backend
       const backendData = {
-        role_name: roleData.name
+        role_name: roleData.name,
+        role_descripcion: roleData.descripcion,
+        role_state: roleData.state
       };
       const response = await axios.post(`${API_URL}/roles`, backendData);
       const role = response.data.data || response.data;
       return {
         id: role.role_id,
-        name: role.role_name
+        name: role.role_name,
+        descripcion: role.role_descripcion,
+        state: role.role_state
       };
     } catch (error) {
       console.error('Error al crear rol:', error);
@@ -59,7 +65,9 @@ export const rolesApi = {
       const role = response.data.data || response.data;
       return {
         id: role.role_id,
-        name: role.role_name
+        name: role.role_name,
+        descripcion: role.role_descripcion,
+        state: role.role_state
       };
     } catch (error) {
       console.error('Error al obtener rol:', error);
@@ -71,13 +79,17 @@ export const rolesApi = {
   update: async (id, roleData) => {
     try {
       const backendData = {
-        role_name: roleData.name
+        role_name: roleData.name,
+        role_descripcion: roleData.descripcion,
+        role_state: roleData.state
       };
       const response = await axios.put(`${API_URL}/roles/${id}`, backendData);
       const role = response.data.data || response.data;
       return {
         id: role.role_id,
-        name: role.role_name
+        name: role.role_name,
+        descripcion: role.role_descripcion,
+        state: role.role_state
       };
     } catch (error) {
       console.error('Error al actualizar rol:', error);

@@ -3,74 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión - PizzAPI</title>
-    <!-- Incluyendo Tailwind CSS desde CDN -->
+    <title>Modal de Rol</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Opcional: Para una mejor tipografía -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #e5e7eb; /* Un fondo gris para ver el modal */
         }
     </style>
 </head>
-<body>
+<body class="flex items-center justify-center h-screen">
 
-    <div class="flex min-h-screen">
-        <!-- Columna Izquierda: Imagen -->
-        <div class="hidden lg:block relative w-1/2 bg-gray-800">
-            <img class="absolute inset-0 w-full h-full object-cover" src="https://images.unsplash.com/photo-1574071318508-1cdbab80d002?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80" alt="Pizza en horno de leña">
-            <div class="absolute inset-0 bg-black bg-opacity-50"></div>
-            <div class="absolute bottom-10 left-10 text-white">
-                <h1 class="text-4xl font-bold">PizzAPI</h1>
-                <p class="mt-2 text-lg text-gray-300">La gestión de tu pizzería, simplificada.</p>
-            </div>
+    <!-- Contenedor del Modal -->
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-md flex flex-col">
+        
+        <!-- Cabecera del Modal -->
+        <div class="flex justify-between items-center p-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-800 flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.124-1.282-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.124-1.282.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              Añadir Nuevo Rol
+            </h2>
+            <button class="text-gray-400 hover:text-gray-600 transition-colors" aria-label="Cerrar">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
         </div>
 
-        <!-- Columna Derecha: Formulario de Login -->
-        <div class="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-100">
-            <div class="w-full max-w-md">
-                <div class="text-center lg:text-left mb-10">
-                    <a href="#" class="text-gray-800 text-2xl font-bold flex items-center justify-center lg:justify-start">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-2 text-red-500" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                          <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM5.5 8.5a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zm5 4a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM10 5a.5.5 0 01.5.5v1.5a.5.5 0 01-1 0V5.5A.5.5 0 0110 5z" />
-                          <path d="M5.15 11.24a3.5 3.5 0 014.95 0 4.48 4.48 0 005.198.54 1 1 0 01.503 1.63A6.48 6.48 0 0110 15.5a6.48 6.48 0 01-5.501-2.09 1 1 0 01.65-1.17z"/>
-                        </svg>
-                        <span>PizzAPI</span>
-                    </a>
-                    <h2 class="mt-6 text-3xl font-extrabold text-gray-900">Bienvenido de nuevo</h2>
-                    <p class="mt-2 text-sm text-gray-600">Por favor, inicia sesión para acceder a tu panel.</p>
+        <!-- Formulario -->
+        <form>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label for="role_name" class="block text-sm font-medium text-gray-700 mb-1">Nombre del Rol</label>
+                    <input type="text" name="role_name" id="role_name" placeholder="Ej: Administrador" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-transparent" required />
                 </div>
                 
-                <form class="space-y-6" action="#" method="POST" autoComplete="off">
-                    <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700">
-                          Dirección de Email
-                        </label>
-                        <div class="mt-1">
-                            <input id="email" name="email" type="email" autoComplete="email" required class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-transparent" placeholder="tu@email.com">
-                        </div>
-                    </div>
+                <div>
+                    <label for="role_descripcion" class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                    <textarea name="role_descripcion" id="role_descripcion" rows="3" placeholder="Ej: Control total sobre el sistema" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-transparent"></textarea>
+                </div>
 
-                    <div>
-                        <label for="password" class="block text-sm font-medium text-gray-700">
-                          Contraseña
-                        </label>
-                        <div class="mt-1">
-                            <input id="password" name="password" type="password" autoComplete="current-password" required class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-transparent" placeholder="••••••••">
-                        </div>
-                    </div>
-
-                    <div>
-                        <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
-                          Iniciar Sesión
-                        </button>
-                    </div>
-                </form>
+                <div class="flex items-center pt-2">
+                    <input id="role_state" type="checkbox" name="role_state" checked class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded" />
+                    <label for="role_state" class="ml-2 block text-sm text-gray-900">Rol Activo</label>
+                </div>
             </div>
-        </div>
+            
+            <!-- Pie del Modal -->
+            <div class="flex justify-end p-4 bg-gray-50 border-t border-gray-200 rounded-b-lg space-x-3">
+              <button type="button" class="px-4 py-2 rounded-md bg-white border border-gray-300 text-gray-800 hover:bg-gray-100 font-semibold transition-colors">
+                Cancelar
+              </button>
+              <button type="submit" class="px-4 py-2 rounded-md bg-red-500 text-white hover:bg-red-600 font-semibold shadow-sm hover:shadow-md transition-all">
+                Crear Rol
+              </button>
+            </div>
+        </form>
+      </div>
     </div>
 
 </body>

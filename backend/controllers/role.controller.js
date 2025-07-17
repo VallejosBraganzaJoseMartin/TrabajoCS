@@ -20,9 +20,9 @@ const getRoleById = async (req, res) => {
 };
 
 const createRole = async (req, res) => {
-  const { role_name } = req.body;
+  const { role_name, role_descripcion, role_state } = req.body;
   try {
-    const role = await Role.create({ role_name });
+    const role = await Role.create({ role_name, role_descripcion, role_state });
     res.status(200).json({ message: 'Rol creado', data: role });
   } catch (error) {
     res.status(500).json({ message: 'Error al crear el rol', error });
@@ -31,9 +31,9 @@ const createRole = async (req, res) => {
 
 const updateRole = async (req, res) => {
   const id = req.params.id;
-  const { role_name } = req.body;
+  const { role_name, role_descripcion, role_state } = req.body;
   try {
-    const [updated] = await Role.update({ role_name }, { where: { role_id: id } });
+    const [updated] = await Role.update({ role_name, role_descripcion, role_state }, { where: { role_id: id } });
     if (updated) {
       const updatedRole = await Role.findByPk(id);
       res.status(200).json({ message: 'Rol actualizado', data: updatedRole });

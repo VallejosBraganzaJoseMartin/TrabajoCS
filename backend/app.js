@@ -8,6 +8,9 @@ const pizzaIngredientRoutes = require('./routes/pizzaIngredient.routes');
 const userRoutes = require('./routes/user.routes');
 const roleRoutes = require('./routes/role.routes');
 const authRoutes = require('./routes/auth.routes');
+const funcionesRoutes = require('./routes/funciones.routes');
+const rolesFuncionesRoutes = require('./routes/rolesFunciones.routes');
+const rolesUsuariosRoutes = require('./routes/rolesUsuarios.routes');
 
 dotenv.config();
 
@@ -29,6 +32,9 @@ app.use('/api/pizza-ingredients', pizzaIngredientRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/roles', roleRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/funciones', funcionesRoutes);
+app.use('/api/roles-funciones', rolesFuncionesRoutes);
+app.use('/api/roles-usuarios', rolesUsuariosRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

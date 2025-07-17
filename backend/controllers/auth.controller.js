@@ -1,5 +1,6 @@
 const User = require('../models/User.model');
 const Role = require('../models/Role.model');
+const UsuarioRol = require('../models/UsuarioRol.model');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -10,7 +11,7 @@ const tokenBlacklist = [];
 
 // Registro de usuario
 const register = async (req, res) => {
-  const { user_names, user_surenames, user_email, user_password, role_id } = req.body;
+  const { user_names, user_surenames, user_email, user_password } = req.body;
   try {
     // Verificar si el email ya existe
     const existing = await User.findOne({ where: { user_email } });
@@ -19,12 +20,12 @@ const register = async (req, res) => {
     }
     // Hashear la contraseña
     const hashedPassword = await bcrypt.hash(user_password, 10);
+    // Crear usuario
     const user = await User.create({
       user_names,
       user_surenames,
       user_email,
-      user_password: hashedPassword,
-      role_id
+      user_password: hashedPassword
     });
     res.status(201).json({ message: 'Usuario registrado', data: user });
   } catch (error) {
@@ -36,7 +37,15 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   const { user_email, user_password } = req.body;
   try {
-    const user = await User.findOne({ where: { user_email }, include: [{ model: Role, as: 'role' }] });
+    // Buscar usuario y roles asociados
+    const user = await User.findOne({
+      where: { user_email },
+      include: [{
+        model: Role,
+        as: 'roles',
+        through: { attributes: [] }
+      }]
+    });
     if (!user) {
       return res.status(401).json({ message: 'Credenciales inválidas' });
     }
@@ -44,14 +53,16 @@ const login = async (req, res) => {
     if (!valid) {
       return res.status(401).json({ message: 'Credenciales inválidas' });
     }
+    // Tomar el primer rol (o todos si lo prefieres)
+    const userRole = user.roles && user.roles.length > 0 ? user.roles[0].role_name : null;
     // Generar token
-    const token = jwt.sign({ user_id: user.user_id, role: user.role.role_name }, JWT_SECRET, { expiresIn: '8h' });
+    const token = jwt.sign({ user_id: user.user_id, role: userRole }, JWT_SECRET, { expiresIn: '8h' });
     res.status(200).json({ message: 'Login exitoso', token, user: {
       user_id: user.user_id,
       user_names: user.user_names,
       user_surenames: user.user_surenames,
       user_email: user.user_email,
-      role: user.role.role_name
+      roles: user.roles.map(r => r.role_name)
     }});
   } catch (error) {
     res.status(500).json({ message: 'Error al iniciar sesión', error });
