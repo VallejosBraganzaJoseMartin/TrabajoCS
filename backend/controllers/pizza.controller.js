@@ -1,5 +1,5 @@
 const Pizza = require('../models/Pizza.model');
-
+//pizza xd
 const getPizzas = async (req, res) => {
   try {
     const pizzas = await Pizza.findAll({
