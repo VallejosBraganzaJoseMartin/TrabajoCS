@@ -58,8 +58,19 @@ const deleteFuncion = async (req, res) => {
     if (!funcion) {
       return res.status(404).json({ message: 'Función no encontrada' });
     }
+    
+    // Primero eliminar todas las relaciones en roles_funciones
+    const RolFuncion = require('../models/RolFuncion.model');
+    await RolFuncion.destroy({
+      where: { funcion_id: id }
+    });
+    
+    // Luego eliminar la función
     await funcion.destroy();
-    res.status(200).json({ message: 'Función eliminada', data: funcion });
+    res.status(200).json({ 
+      message: 'Función eliminada junto con sus relaciones con roles', 
+      data: funcion 
+    });
   } catch (error) {
     res.status(500).json({ message: 'Error al eliminar la función', error });
   }

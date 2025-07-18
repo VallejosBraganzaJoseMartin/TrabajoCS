@@ -60,8 +60,19 @@ const deleteUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
+    
+    // Primero eliminar todas las relaciones en usuarios_roles
+    const UsuarioRol = require('../models/UsuarioRol.model');
+    await UsuarioRol.destroy({
+      where: { user_id: id }
+    });
+    
+    // Luego eliminar el usuario
     await user.destroy();
-    res.status(200).json({ message: 'Usuario eliminado', data: user });
+    res.status(200).json({ 
+      message: 'Usuario eliminado junto con sus roles asociados', 
+      data: user 
+    });
   } catch (error) {
     res.status(500).json({ message: 'Error al eliminar el usuario', error });
   }

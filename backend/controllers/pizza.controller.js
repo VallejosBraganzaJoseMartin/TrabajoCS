@@ -85,9 +85,17 @@ const deletePizza = async (req, res) => {
     if (!pizza) {
       return res.status(404).json({ message: 'Pizza no encontrada' });
     }
+    
+    // Primero eliminar todas las relaciones en pizzas_ingredients
+    const PizzaIngredient = require('../models/PizzaIngredient.model');
+    await PizzaIngredient.destroy({
+      where: { piz_id: id }
+    });
+    
+    // Luego eliminar la pizza
     await pizza.destroy();
     res.status(200).json({
-      message: 'Pizza eliminada',
+      message: 'Pizza eliminada junto con sus ingredientes asociados',
       data: pizza
     });
   } catch (error) {

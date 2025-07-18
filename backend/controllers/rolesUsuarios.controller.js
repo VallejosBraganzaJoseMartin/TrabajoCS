@@ -49,7 +49,21 @@ const removeRoleFromUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
-    await user.removeRole(role_id);
+    
+    const role = await Role.findByPk(role_id);
+    if (!role) {
+      return res.status(404).json({ message: 'Rol no encontrado' });
+    }
+    
+    // Eliminar la relación directamente de la tabla intermedia
+    const deletedRows = await UsuarioRol.destroy({
+      where: { user_id: user_id, role_id: role_id }
+    });
+    
+    if (deletedRows === 0) {
+      return res.status(404).json({ message: 'La relación usuario-rol no existe' });
+    }
+    
     res.status(200).json({ message: 'Rol removido del usuario' });
   } catch (error) {
     res.status(500).json({ message: 'Error al remover rol del usuario', error });

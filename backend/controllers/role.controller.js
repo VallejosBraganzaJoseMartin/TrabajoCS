@@ -52,8 +52,25 @@ const deleteRole = async (req, res) => {
     if (!role) {
       return res.status(404).json({ message: 'Rol no encontrado' });
     }
+    
+    // Primero eliminar todas las relaciones en usuarios_roles
+    const UsuarioRol = require('../models/UsuarioRol.model');
+    await UsuarioRol.destroy({
+      where: { role_id: id }
+    });
+    
+    // Eliminar todas las relaciones en roles_funciones
+    const RolFuncion = require('../models/RolFuncion.model');
+    await RolFuncion.destroy({
+      where: { role_id: id }
+    });
+    
+    // Luego eliminar el rol
     await role.destroy();
-    res.status(200).json({ message: 'Rol eliminado', data: role });
+    res.status(200).json({ 
+      message: 'Rol eliminado junto con sus relaciones con usuarios y funciones', 
+      data: role 
+    });
   } catch (error) {
     res.status(500).json({ message: 'Error al eliminar el rol', error });
   }
