@@ -1,8 +1,27 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { authApi } from "../api/auth";
 
 const Sidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout, token } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      if (token) {
+        await authApi.logout(token);
+      }
+      logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Error durante el logout:', error);
+      // Aún así cerrar la sesión localmente
+      logout();
+      navigate('/login');
+    }
+  };
   return (
     <div className="hidden md:flex flex-col w-64 bg-white border-r">
       {/* Logo en Sidebar */}
@@ -58,12 +77,15 @@ const Sidebar = () => {
       </div>
       {/* Botón de Cerrar Sesión */}
       <div className="p-4 mt-auto border-t">
-        <a href="#" className="flex items-center w-full px-4 py-2 text-sm font-semibold text-gray-500 hover:bg-red-100 hover:text-red-700 rounded-lg transition-colors duration-200">
+        <button 
+          onClick={handleLogout}
+          className="flex items-center w-full px-4 py-2 text-sm font-semibold text-gray-500 hover:bg-red-100 hover:text-red-700 rounded-lg transition-colors duration-200"
+        >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
             <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
           </svg>
           <span>Cerrar sesión</span>
-        </a>
+        </button>
       </div>
     </div>
   );

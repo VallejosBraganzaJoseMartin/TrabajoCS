@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { authApi } from '../api/auth';
 
 const AuthContext = createContext();
 
@@ -8,13 +9,25 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (token) {
-      
-      setUser({}); 
-    } else {
-      setUser(null);
-    }
-    setLoading(false);
+    const fetchUserData = async () => {
+      if (token) {
+        try {
+          const userData = await authApi.getCurrentUser(token);
+          setUser(userData);
+        } catch (error) {
+          console.error('Error al obtener datos del usuario:', error);
+          // Si hay error al obtener los datos, limpiar el token
+          setToken(null);
+          setUser(null);
+          localStorage.removeItem('token');
+        }
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
+    };
+
+    fetchUserData();
   }, [token]);
 
   const login = (token, userData) => {

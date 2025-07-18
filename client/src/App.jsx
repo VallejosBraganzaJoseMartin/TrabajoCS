@@ -11,6 +11,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import RolesPage from './pages/RolesPage';
 import FunctionsPage from './pages/FunctionsPage';
 import RoleFunctionsPage from './pages/RoleFunctionsPage';
+import UserRolesPage from './pages/UserRolesPage';
 import './App.css';
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
             <Route path="/pizzas/:id/ingredientes" element={<ManagePizzaIngredients />} />
             <Route path="/roles" element={<RolesPage />} />
             <Route path="/roles/:roleId/functions" element={<RoleFunctionsPage />} />
+            <Route path="/users/:userId/roles" element={<UserRolesPage />} />
             <Route path="/funciones" element={<FunctionsPage />} />
             <Route path="*" element={<Navigate to="/pizzas" replace />} />
           </Route>

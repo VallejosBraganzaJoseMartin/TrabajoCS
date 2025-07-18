@@ -11,7 +11,14 @@ const assignRolesToUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
-    await user.setRoles(role_ids);
+
+    // Crear las relaciones directamente en la tabla de unión para mantener los roles existentes
+    for (const role_id of role_ids) {
+      await UsuarioRol.findOrCreate({
+        where: { user_id: user_id, role_id: role_id }
+      });
+    }
+
     res.status(200).json({ message: 'Roles asignados al usuario' });
   } catch (error) {
     res.status(500).json({ message: 'Error al asignar roles', error });

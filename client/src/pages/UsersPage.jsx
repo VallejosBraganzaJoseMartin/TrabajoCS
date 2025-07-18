@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import UserModal from '../components/UserModal';
@@ -7,6 +8,7 @@ import { usersApi } from '../api/users';
 import { rolesApi } from '../api/roles';
 
 const UsersPage = () => {
+  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -60,6 +62,11 @@ const UsersPage = () => {
         alert('Error al eliminar el usuario');
       }
     }
+  };
+
+  const handleManageRoles = (user) => {
+    const userId = user.id || user.user_id;
+    navigate(`/users/${userId}/roles`);
   };
 
   const handleSaveUser = async (userData) => {
@@ -164,6 +171,7 @@ const UsersPage = () => {
               getStatusBadge={getStatusBadge}
               onEdit={handleEditUser}
               onDelete={handleDeleteUser}
+              onManageRoles={handleManageRoles}
             />
           </div>
         </main>

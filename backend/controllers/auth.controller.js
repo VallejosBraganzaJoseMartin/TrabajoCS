@@ -92,9 +92,38 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
+// Obtener datos del usuario actual
+const getCurrentUser = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.user_id, {
+      attributes: ['user_id', 'user_names', 'user_surenames', 'user_email'],
+      include: [{
+        model: Role,
+        as: 'roles',
+        through: { attributes: [] }
+      }]
+    });
+    
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    res.status(200).json({
+      user_id: user.user_id,
+      user_names: user.user_names,
+      user_surenames: user.user_surenames,
+      user_email: user.user_email,
+      roles: user.roles.map(r => r.role_name)
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener usuario', error });
+  }
+};
+
 module.exports = {
   register,
   login,
   logout,
-  authenticateToken
+  authenticateToken,
+  getCurrentUser
 };
