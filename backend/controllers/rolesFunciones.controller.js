@@ -7,12 +7,28 @@ const assignFuncionesToRole = async (req, res) => {
   const { role_id } = req.params;
   const { funcion_ids } = req.body; // Array de IDs de funciones
   try {
+    // Verificar que el rol existe
     const role = await Role.findByPk(role_id);
     if (!role) {
       return res.status(404).json({ message: 'Rol no encontrado' });
     }
-    await role.setFunciones(funcion_ids);
-    res.status(200).json({ message: 'Funciones asignadas al rol' });
+    
+    // Si es un array, crear múltiples relaciones
+    if (Array.isArray(funcion_ids)) {
+      const relations = funcion_ids.map(funcion_id => ({
+        role_id: role_id,
+        funcion_id: funcion_id
+      }));
+      await RolFuncion.bulkCreate(relations, { ignoreDuplicates: true });
+    } else {
+      // Si es un solo ID, crear una relación
+      await RolFuncion.create({ 
+        role_id: role_id, 
+        funcion_id: funcion_ids 
+      });
+    }
+    
+    res.status(201).json({ message: 'Funciones asignadas al rol' });
   } catch (error) {
     res.status(500).json({ message: 'Error al asignar funciones', error });
   }
@@ -38,12 +54,15 @@ const getFuncionesByRole = async (req, res) => {
 const removeFuncionFromRole = async (req, res) => {
   const { role_id, funcion_id } = req.params;
   try {
-    const role = await Role.findByPk(role_id);
-    if (!role) {
-      return res.status(404).json({ message: 'Rol no encontrado' });
+    const relation = await RolFuncion.findOne({ where: { role_id, funcion_id } });
+    if (!relation) {
+      return res.status(404).json({ message: 'Relación no encontrada' });
     }
-    await role.removeFuncion(funcion_id);
-    res.status(200).json({ message: 'Función removida del rol' });
+    await relation.destroy();
+    res.status(200).json({ 
+      message: 'Función removida del rol',
+      data: relation
+    });
   } catch (error) {
     res.status(500).json({ message: 'Error al remover función del rol', error });
   }

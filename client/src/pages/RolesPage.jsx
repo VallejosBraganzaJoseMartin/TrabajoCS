@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import { rolesApi } from "../api/roles";
@@ -6,6 +7,7 @@ import RolesTable from "../components/RolesTable";
 import RoleModal from "../components/RoleModal";
 
 const RolesPage = () => {
+  const navigate = useNavigate();
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -63,6 +65,23 @@ const RolesPage = () => {
     }
   };
 
+  // Eliminar rol
+  const handleDeleteRole = async (id) => {
+    if (window.confirm('¿Estás seguro de que quieres eliminar este rol?')) {
+      try {
+        await rolesApi.delete(id);
+        fetchRoles();
+      } catch (err) {
+        alert('Error al eliminar el rol');
+      }
+    }
+  };
+
+  // Manejar funciones del rol
+  const handleManageFunctions = (role) => {
+    navigate(`/roles/${role.id}/functions`);
+  };
+
   return (
     <div className="flex h-screen bg-gray-100">
       <Sidebar />
@@ -88,7 +107,14 @@ const RolesPage = () => {
             Listado de Roles
           </h2>
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <RolesTable roles={roles} loading={loading} error={error} onEdit={handleEditRole} />
+            <RolesTable 
+              roles={roles} 
+              loading={loading} 
+              error={error} 
+              onEdit={handleEditRole} 
+              onDelete={handleDeleteRole}
+              onManageFunctions={handleManageFunctions}
+            />
           </div>
         </main>
         <RoleModal

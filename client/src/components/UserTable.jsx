@@ -9,7 +9,6 @@ const UserTable = ({ users, getRoleName, getStatusBadge, onEdit, onDelete }) => 
           <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Nombres</th>
           <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Apellidos</th>
           <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
-          <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Rol</th>
           <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Estado</th>
           <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Acciones</th>
         </tr>
@@ -35,9 +34,6 @@ const UserTable = ({ users, getRoleName, getStatusBadge, onEdit, onDelete }) => 
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                 {user.email || user.user_email}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                {getRoleName(user.roleId || user.role_id)}
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 {getStatusBadge(
