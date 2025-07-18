@@ -1,6 +1,7 @@
 const User = require('../models/User.model');
 const Role = require('../models/Role.model');
 const UsuarioRol = require('../models/UsuarioRol.model');
+const Funcion = require('../models/Funcion.model');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -106,7 +107,12 @@ const getCurrentUser = async (req, res) => {
       include: [{
         model: Role,
         as: 'roles',
-        through: { attributes: [] }
+        through: { attributes: [] },
+        include: [{
+          model: Funcion,
+          as: 'funciones',
+          through: { attributes: [] }
+        }]
       }]
     });
     
@@ -119,13 +125,32 @@ const getCurrentUser = async (req, res) => {
       return res.status(403).json({ message: 'Tu cuenta está inactiva. Contacta al administrador para activarla.' });
     }
 
+    // Extraer todas las funciones únicas de todos los roles del usuario
+    const funciones = [];
+    if (user.roles) {
+      user.roles.forEach(role => {
+        if (role.funciones) {
+          role.funciones.forEach(funcion => {
+            if (!funciones.find(f => f.funcion_id === funcion.funcion_id)) {
+              funciones.push({
+                funcion_id: funcion.funcion_id,
+                funcion_name: funcion.funcion_name,
+                funcion_descripcion: funcion.funcion_descripcion
+              });
+            }
+          });
+        }
+      });
+    }
+
     res.status(200).json({
       user_id: user.user_id,
       user_names: user.user_names,
       user_surenames: user.user_surenames,
       user_email: user.user_email,
       user_state: user.user_state,
-      roles: user.roles.map(r => r.role_name)
+      roles: user.roles.map(r => r.role_name),
+      funciones: funciones
     });
   } catch (error) {
     res.status(500).json({ message: 'Error al obtener usuario', error });

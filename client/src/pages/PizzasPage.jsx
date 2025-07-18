@@ -3,6 +3,7 @@ import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import PizzaTable from "../components/PizzaTable";
 import PizzaModal from "../components/PizzaModal";
+import { usePermissions } from "../hooks/usePermissions";
 import { pizzasApi } from "../api/pizzas";
 
 const PizzasPage = () => {
@@ -12,6 +13,7 @@ const PizzasPage = () => {
   const [pizzas, setPizzas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { canCreatePizza } = usePermissions();
 
   // Obtener pizzas al cargar
   useEffect(() => {
@@ -93,15 +95,17 @@ const PizzasPage = () => {
           {/* Encabezado de la página */}
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-bold text-gray-800">Mis Pizzas</h1>
-            <button
-              className="flex items-center bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300"
-              onClick={handleOpenModal}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              Añadir Nueva Pizza
-            </button>
+            {canCreatePizza() && (
+              <button
+                className="flex items-center bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300"
+                onClick={handleOpenModal}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Añadir Nueva Pizza
+              </button>
+            )}
           </div>
           {/* Sección Tabla/Listado */}
           <div>

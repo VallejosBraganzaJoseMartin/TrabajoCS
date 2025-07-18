@@ -22,16 +22,72 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route element={<ProtectedRoute> <Outlet /> </ProtectedRoute>}>
             <Route path="/" element={<Navigate to="/menu" replace />} />
-            <Route path="/pizzas" element={<PizzasPage />} />
+            <Route 
+              path="/pizzas" 
+              element={
+                <ProtectedRoute requiredFunction="Administrar Pizzas">
+                  <PizzasPage />
+                </ProtectedRoute>
+              } 
+            />
             <Route path="/menu" element={<MenuPage />} />
-            <Route path="/ingredientes" element={<IngredientsPage />} />
-            <Route path="/gestion" element={<UsersPage />} />
-            <Route path="/pizzas/:id/ingredientes" element={<ManagePizzaIngredients />} />
-            <Route path="/roles" element={<RolesPage />} />
-            <Route path="/roles/:roleId/functions" element={<RoleFunctionsPage />} />
-            <Route path="/users/:userId/roles" element={<UserRolesPage />} />
-            <Route path="/funciones" element={<FunctionsPage />} />
-            <Route path="*" element={<Navigate to="/pizzas" replace />} />
+            <Route 
+              path="/ingredientes" 
+              element={
+                <ProtectedRoute requiredFunction="Administrar Pizzas">
+                  <IngredientsPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/gestion" 
+              element={
+                <ProtectedRoute requiredFunction="Administrar Usuarios">
+                  <UsersPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/pizzas/:id/ingredientes" 
+              element={
+                <ProtectedRoute requiredFunction="Administrar Pizzas">
+                  <ManagePizzaIngredients />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/roles" 
+              element={
+                <ProtectedRoute requiredFunction="Administrar Roles">
+                  <RolesPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/roles/:roleId/functions" 
+              element={
+                <ProtectedRoute requiredFunction="Administrar Roles">
+                  <RoleFunctionsPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/users/:userId/roles" 
+              element={
+                <ProtectedRoute requiredFunction="Administrar Usuarios">
+                  <UserRolesPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/funciones" 
+              element={
+                <ProtectedRoute requiredFunction="Administrar Funciones">
+                  <FunctionsPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route path="*" element={<Navigate to="/menu" replace />} />
           </Route>
         </Routes>
       </Router>
