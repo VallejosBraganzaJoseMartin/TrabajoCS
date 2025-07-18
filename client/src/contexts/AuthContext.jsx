@@ -16,7 +16,10 @@ export function AuthProvider({ children }) {
           setUser(userData);
         } catch (error) {
           console.error('Error al obtener datos del usuario:', error);
-          // Si hay error al obtener los datos, limpiar el token
+          // Si hay error al obtener los datos (incluyendo cuenta inactiva), limpiar el token
+          if (error.response?.status === 403) {
+            console.log('Usuario inactivo, cerrando sesión automáticamente');
+          }
           setToken(null);
           setUser(null);
           localStorage.removeItem('token');

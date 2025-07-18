@@ -2,15 +2,21 @@ import React, {useState} from 'react';
 import { authApi } from '../api/auth';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import Alert from '../components/Alert';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(''); // Limpiar errores previos
+    setLoading(true);
+    
     try {
       const response = await authApi.login({ user_email: email, user_password: password });
       console.log('login response:', response);
@@ -20,8 +26,27 @@ export default function LoginPage() {
       login(token, user);
       navigate('/menu', { replace: true });
     } catch (error) {
-      console.log("todo mal", error)
+      console.log("Error de login:", error);
+      
+      // Manejar diferentes tipos de errores
+      if (error.response?.status === 401) {
+        setError('Credenciales inválidas. Por favor, verifica tu email y contraseña.');
+      } else if (error.response?.status === 403) {
+        setError(error.response?.data?.message || 'Tu cuenta está inactiva. Contacta al administrador para activarla.');
+      } else if (error.response?.status === 500) {
+        setError('Error del servidor. Por favor, inténtalo más tarde.');
+      } else if (error.message === 'Network Error') {
+        setError('Error de conexión. Verifica tu conexión a internet.');
+      } else {
+        setError('Error al iniciar sesión. Por favor, inténtalo nuevamente.');
+      }
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleCloseAlert = () => {
+    setError('');
   };
 
   return (
@@ -56,6 +81,14 @@ export default function LoginPage() {
           </div>
 
           <form className="space-y-6" autoComplete="off" onSubmit={handleSubmit}>
+            {/* Alerta de error */}
+            <Alert 
+              type="error" 
+              message={error} 
+              show={!!error} 
+              onClose={handleCloseAlert}
+            />
+            
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email
@@ -97,9 +130,24 @@ export default function LoginPage() {
             <div>
               <button
                 type="submit"
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                disabled={loading}
+                className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white transition-colors ${
+                  loading 
+                    ? 'bg-gray-400 cursor-not-allowed' 
+                    : 'bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'
+                }`}
               >
-                Iniciar Sesión
+                {loading ? (
+                  <div className="flex items-center">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Iniciando sesión...
+                  </div>
+                ) : (
+                  'Iniciar Sesión'
+                )}
               </button>
             </div>
           </form>

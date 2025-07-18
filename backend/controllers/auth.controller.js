@@ -49,6 +49,12 @@ const login = async (req, res) => {
     if (!user) {
       return res.status(401).json({ message: 'Credenciales inválidas' });
     }
+    
+    // Verificar si el usuario está activo
+    if (!user.user_state) {
+      return res.status(403).json({ message: 'Tu cuenta está inactiva. Contacta al administrador para activarla.' });
+    }
+    
     const valid = await bcrypt.compare(user_password, user.user_password);
     if (!valid) {
       return res.status(401).json({ message: 'Credenciales inválidas' });
@@ -96,7 +102,7 @@ const authenticateToken = (req, res, next) => {
 const getCurrentUser = async (req, res) => {
   try {
     const user = await User.findByPk(req.user.user_id, {
-      attributes: ['user_id', 'user_names', 'user_surenames', 'user_email'],
+      attributes: ['user_id', 'user_names', 'user_surenames', 'user_email', 'user_state'],
       include: [{
         model: Role,
         as: 'roles',
@@ -108,11 +114,17 @@ const getCurrentUser = async (req, res) => {
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
 
+    // Verificar si el usuario está activo
+    if (!user.user_state) {
+      return res.status(403).json({ message: 'Tu cuenta está inactiva. Contacta al administrador para activarla.' });
+    }
+
     res.status(200).json({
       user_id: user.user_id,
       user_names: user.user_names,
       user_surenames: user.user_surenames,
       user_email: user.user_email,
+      user_state: user.user_state,
       roles: user.roles.map(r => r.role_name)
     });
   } catch (error) {

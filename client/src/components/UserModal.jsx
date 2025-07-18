@@ -16,7 +16,6 @@ export default function UserModal({
     email: '',
     password: '',
     confirmPassword: '',
-    roleId: '',
     isActive: true
   });
   const [errors, setErrors] = useState({});
@@ -30,7 +29,6 @@ export default function UserModal({
         email: user.email || user.user_email || '',
         password: '',
         confirmPassword: '',
-        roleId: user.roleId || user.role_id || '',
         isActive: user.isActive !== undefined ? user.isActive : (user.user_status !== undefined ? user.user_status : true)
       });
     } else {
@@ -41,7 +39,6 @@ export default function UserModal({
         email: '',
         password: '',
         confirmPassword: '',
-        roleId: '',
         isActive: true
       });
     }
@@ -57,7 +54,7 @@ export default function UserModal({
     if (name === 'user_surenames') fieldName = 'lastName';
     if (name === 'user_email') fieldName = 'email';
     if (name === 'user_password') fieldName = 'password';
-    if (name === 'role_id') fieldName = 'roleId';
+    // Eliminado: no se maneja roleId aquí
     if (name === 'user_status') fieldName = 'isActive';
 
     setFormData(prev => ({
@@ -91,9 +88,7 @@ export default function UserModal({
       newErrors.email = 'El email no es válido';
     }
 
-    if (!formData.roleId) {
-      newErrors.roleId = 'El rol es requerido';
-    }
+    // Eliminado: no se valida rol
 
     if (mode === 'create') {
       if (!formData.password) {
@@ -136,7 +131,6 @@ export default function UserModal({
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
         email: formData.email.trim(),
-        roleId: parseInt(formData.roleId),
         isActive: formData.isActive
       };
 
@@ -147,7 +141,6 @@ export default function UserModal({
           user_surenames: formData.lastName.trim(),
           user_email: formData.email.trim(),
           user_password: formData.password,
-          role_id: parseInt(formData.roleId),
           user_state: formData.isActive
         };
         await authApi.register(registerData);
@@ -160,7 +153,6 @@ export default function UserModal({
           user_names: formData.firstName.trim(),
           user_surenames: formData.lastName.trim(),
           user_email: formData.email.trim(),
-          role_id: parseInt(formData.roleId),
           user_state: formData.isActive
         };
         if (formData.password) {
@@ -328,28 +320,7 @@ export default function UserModal({
                     )}
                 </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Rol *</label>
-                    <select 
-                      name="role_id" 
-                      value={formData.roleId} 
-                      onChange={handleInputChange} 
-                      className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-transparent ${
-                        errors.roleId ? 'border-red-300' : 'border-gray-300'
-                      }`}
-                      required
-                    >
-                        <option value="">Selecciona un rol</option>
-                        {roles.map((role) => (
-                          <option key={role.role_id || role.id} value={role.role_id || role.id}>
-                            {role.role_name || role.name}
-                          </option>
-                        ))}
-                    </select>
-                    {errors.roleId && (
-                      <p className="mt-1 text-sm text-red-600">{errors.roleId}</p>
-                    )}
-                </div>
+                {/* Eliminado campo de rol, la relación se gestiona por separado */}
                 
                 <div className="flex items-center pt-2">
                     <input 
