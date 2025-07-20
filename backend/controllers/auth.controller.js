@@ -71,8 +71,8 @@ const login = async (req, res) => {
     // Generar token incluyendo los roles y sus funciones
     const token = jwt.sign({
         user_id: user.user_id,
-        user_email: user.user_email, // Puedes incluir el email si lo necesitas en el token
-        roles: userRoles // <-- ¡Añade los roles y sus funciones al token!
+        user_email: user.user_email, 
+        roles: userRoles 
     }, JWT_SECRET, { expiresIn: '8h' });
 
     res.status(200).json({
