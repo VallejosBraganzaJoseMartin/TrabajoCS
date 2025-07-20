@@ -51,10 +51,16 @@ const Header = ({ currentPage, onMenuToggle }) => {
       </div>
 
       {/* Sección Derecha: Perfil */}
-      <div className="flex items-center">
+      <div className="flex flex-col items-end">
         <div className="text-sm font-medium text-gray-700 truncate max-w-[150px]">
           {user && user.user_names ? `${user.user_names} ${user.user_surenames || ''}` : 'Usuario'}
         </div>
+        {/* Mostrar el rol principal debajo del nombre */}
+        {user && user.roles && user.roles.length > 0 && (
+          <div className="text-xs text-gray-500 font-semibold truncate max-w-[150px]">
+            {user.roles[0].role_name}
+          </div>
+        )}
       </div>
     </div>
   );
