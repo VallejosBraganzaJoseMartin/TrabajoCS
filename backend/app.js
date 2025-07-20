@@ -7,13 +7,21 @@ const pizzaRoutes = require('./routes/pizza.routes');
 const pizzaIngredientRoutes = require('./routes/pizzaIngredient.routes');
 const userRoutes = require('./routes/user.routes');
 const roleRoutes = require('./routes/role.routes');
+const funcionRoutes = require('./routes/funcion.routes');
 const authRoutes = require('./routes/auth.routes');
+
 
 dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+const User = require('./models/User.model');
+const Role = require('./models/Role.model');
+const Funcion = require('./models/Funcion.model');
+
+require('./config/associations');
 
 sequelize.authenticate()
   .then(() => console.log('Conexion exitosa...'))
@@ -28,6 +36,7 @@ app.use('/api/pizzas', pizzaRoutes);
 app.use('/api/pizza-ingredients', pizzaIngredientRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/roles', roleRoutes);
+app.use('/api/funciones', funcionRoutes);
 app.use('/api/auth', authRoutes);
 
 const PORT = process.env.PORT || 3000;

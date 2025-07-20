@@ -66,7 +66,7 @@ const IngredientTable = ({ ingredients, loading, error, onDelete, onEdit }) => {
                 </button>
                 <button 
                   className="text-gray-400 hover:text-red-600 transition-colors duration-200"
-                  onClick={() => onDelete(ingredient.ing_id)}
+                  onClick={() => onDelete(ingredient.ing_id, ingredient.ing_name)}
                   title="Eliminar ingrediente"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">

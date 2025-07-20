@@ -155,18 +155,35 @@ export default function UserModal({
         // Para editar usuarios, usar el endpoint de actualización
         // Usar el id correcto (user.id o user.user_id)
         const userId = user.id || user.user_id;
+        console.log('Actualizando usuario con ID:', userId);
+        
         // Mapear los campos al formato esperado por el backend
         const updateData = {
           user_names: formData.firstName.trim(),
           user_surenames: formData.lastName.trim(),
           user_email: formData.email.trim(),
-          role_id: parseInt(formData.roleId),
           user_state: formData.isActive
         };
+        
+        // Solo incluir la contraseña si se ha proporcionado una nueva
         if (formData.password) {
           updateData.user_password = formData.password;
         }
-        await usersApi.update(userId, updateData);
+        
+        console.log('Datos de actualización:', updateData);
+        
+        try {
+          const result = await usersApi.update(userId, updateData);
+          console.log('Resultado de la actualización:', result);
+          
+          // Si el usuario tiene un rol seleccionado, asignarlo
+          if (formData.roleId) {
+            await usersApi.assignRoles(userId, [parseInt(formData.roleId)]);
+          }
+        } catch (updateError) {
+          console.error('Error específico al actualizar:', updateError);
+          throw updateError;
+        }
       }
       
       onClose();

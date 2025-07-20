@@ -1,7 +1,5 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
-const Role = require('./Role.model');
-
 const User = sequelize.define('User', {
   user_id: {
     type: DataTypes.INTEGER,
@@ -25,6 +23,7 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING(255),
     allowNull: false
   },
+
   user_state: {
     type: DataTypes.BOOLEAN,
     defaultValue: true
@@ -34,7 +33,5 @@ const User = sequelize.define('User', {
   timestamps: false
 });
 
-User.belongsTo(Role, { foreignKey: 'role_id', as: 'role' });
-Role.hasMany(User, { foreignKey: 'role_id', as: 'users' });
 
 module.exports = User;

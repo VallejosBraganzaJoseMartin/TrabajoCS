@@ -1,5 +1,6 @@
 const User = require('../models/User.model');
 const Role = require('../models/Role.model');
+const Funcion = require('../models/Funcion.model');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -36,28 +37,63 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   const { user_email, user_password } = req.body;
   try {
-    const user = await User.findOne({ where: { user_email }, include: [{ model: Role, as: 'role' }] });
+    const user = await User.findOne({
+      where: { user_email },
+      include: [{
+        model: Role,
+        as: 'roles', 
+        through: { attributes: [] }, 
+        include: [{
+          model: Funcion,
+          as: 'funciones', 
+          through: { attributes: [] },
+          attributes: ['funcion_name'] // Solo queremos el nombre de la función
+        }]
+      }]
+    });
+
     if (!user) {
       return res.status(401).json({ message: 'Credenciales inválidas' });
     }
+
     const valid = await bcrypt.compare(user_password, user.user_password);
     if (!valid) {
       return res.status(401).json({ message: 'Credenciales inválidas' });
     }
-    // Generar token
-    const token = jwt.sign({ user_id: user.user_id, role: user.role.role_name }, JWT_SECRET, { expiresIn: '8h' });
-    res.status(200).json({ message: 'Login exitoso', token, user: {
-      user_id: user.user_id,
-      user_names: user.user_names,
-      user_surenames: user.user_surenames,
-      user_email: user.user_email,
-      role: user.role.role_name
-    }});
+
+    // Extraer roles y funciones
+    const userRoles = user.roles ? user.roles.map(role => ({
+        role_id: role.role_id,
+        role_name: role.role_name,
+        funciones: role.funciones ? role.funciones.map(func => func.funcion_name) : []
+    })) : [];
+
+    // Generar token incluyendo los roles y sus funciones
+    const token = jwt.sign({
+        user_id: user.user_id,
+        user_email: user.user_email, // Puedes incluir el email si lo necesitas en el token
+        roles: userRoles // <-- ¡Añade los roles y sus funciones al token!
+    }, JWT_SECRET, { expiresIn: '8h' });
+
+    res.status(200).json({
+        message: 'Login exitoso',
+        token,
+        user: {
+            user_id: user.user_id,
+            user_names: user.user_names,
+            user_surenames: user.user_surenames,
+            user_email: user.user_email,
+            roles: userRoles // <-- También envía los roles y funciones en la respuesta
+        }
+    });
+
   } catch (error) {
-    res.status(500).json({ message: 'Error al iniciar sesión', error });
+    console.error('#########################################');
+    console.error('ERROR EN EL LOGIN DEL USUARIO:', error);
+    console.error('#########################################');
+    res.status(500).json({ message: 'Error al iniciar sesión', error: error.message });
   }
 };
-
 const logout = (req, res) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];

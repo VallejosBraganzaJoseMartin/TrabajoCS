@@ -15,12 +15,16 @@ export default function LoginPage() {
       const response = await authApi.login({ user_email: email, user_password: password });
       console.log('login response:', response);
       // Soporta ambas estructuras: axios (response.data) o fetch (response)
-      const token = response.data?.token || response.token;
-      const user = response.data?.user || response.user;
+      const token = response.token;
+      const user = response.user;
+      
+      console.log('Usuario logueado:', user);
+      
       login(token, user);
       navigate('/menu', { replace: true });
     } catch (error) {
-      console.log("todo mal", error)
+      console.log("Error en el login:", error);
+      alert('Error al iniciar sesión. Verifica tus credenciales.');
     }
   };
 
