@@ -53,12 +53,18 @@ const login = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(401).json({ message: 'Credenciales inválidas' });
+      return res.status(401).json({ 
+        message: 'Credenciales incorrectas', 
+        details: 'Por favor, revise su correo electrónico o contraseña' 
+      });
     }
 
     const valid = await bcrypt.compare(user_password, user.user_password);
     if (!valid) {
-      return res.status(401).json({ message: 'Credenciales inválidas' });
+      return res.status(401).json({ 
+        message: 'Credenciales incorrectas', 
+        details: 'Por favor, revise su correo electrónico o contraseña' 
+      });
     }
 
     // Extraer roles y funciones
@@ -83,14 +89,13 @@ const login = async (req, res) => {
             user_names: user.user_names,
             user_surenames: user.user_surenames,
             user_email: user.user_email,
-            roles: userRoles // <-- También envía los roles y funciones en la respuesta
+            roles: userRoles  
         }
     });
 
   } catch (error) {
-    console.error('#########################################');
+
     console.error('ERROR EN EL LOGIN DEL USUARIO:', error);
-    console.error('#########################################');
     res.status(500).json({ message: 'Error al iniciar sesión', error: error.message });
   }
 };

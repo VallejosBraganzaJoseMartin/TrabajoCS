@@ -6,11 +6,13 @@ import { useNavigate } from 'react-router-dom';
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(''); // Limpiar errores previos
     try {
       const response = await authApi.login({ user_email: email, user_password: password });
       console.log('login response:', response);
@@ -22,9 +24,24 @@ export default function LoginPage() {
       
       login(token, user);
       navigate('/menu', { replace: true });
-    } catch (error) {
-      console.log("Error en el login:", error);
-      alert('Error al iniciar sesión. Verifica tus credenciales.');
+    } catch (err) {
+      console.log("Error en el login:", err);
+      
+      // Mensaje de error predeterminado
+      let errorMessage = 'Credenciales incorrectas. Por favor, revise su correo electrónico o contraseña.';
+      
+      // Usamos el mensaje predeterminado para todos los errores de autenticación
+      if (err.response && err.response.status === 401) {
+        errorMessage = 'Credenciales incorrectas. Por favor, revise su correo electrónico o contraseña.';
+      } else if (err.response && err.response.data && err.response.data.message) {
+        // Para otros tipos de errores, usamos el mensaje del servidor
+        errorMessage = err.response.data.message;
+      } else if (err.message && !err.message.includes('401')) {
+        // Error general que no sea de autenticación
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
     }
   };
 
@@ -98,6 +115,12 @@ export default function LoginPage() {
               </div>
             </div>
 
+            {error && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <span className="block sm:inline">{error}</span>
+              </div>
+            )}
+            
             <div>
               <button
                 type="submit"
