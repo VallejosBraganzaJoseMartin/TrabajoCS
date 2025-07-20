@@ -3,9 +3,8 @@
 const User = require('../models/User.model');
 const Role = require('../models/Role.model');
 const Funcion = require('../models/Funcion.model');
-const UserRole = require('../models/UserRole.model'); // Importar el modelo de la tabla intermedia
-const RoleFuncion = require('../models/RoleFuncion.model'); // Importar el modelo de la tabla intermedia roles_funciones
-
+const UserRole = require('../models/UserRole.model'); 
+const RoleFuncion = require('../models/RoleFuncion.model'); 
 // Relación muchos a muchos entre User y Role
 User.belongsToMany(Role, {
   through: UserRole,
@@ -27,7 +26,7 @@ Role.belongsToMany(Funcion, {
   otherKey: 'funcion_id',
   as: 'funciones'
 });
-Funcion.belongsToMany(Role, { // La asociación inversa para Funcion
+Funcion.belongsToMany(Role, {
   through: RoleFuncion,
   foreignKey: 'funcion_id',
   otherKey: 'role_id',
