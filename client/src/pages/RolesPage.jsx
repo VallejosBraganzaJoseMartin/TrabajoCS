@@ -146,9 +146,24 @@ const RolesPage = () => {
               roles={roles}
               onEdit={handleOpenModal}
               onDelete={openConfirmModal}
-              onAssignFunctions={(role) => {
-                setCurrentRole(role);
-                setIsFunctionModalOpen(true);
+              onAssignFunctions={async (role) => {
+                try {
+                  // Cargar las funciones actuales del rol
+                  const response = await permissionsApi.getRoleFunctions(role.id || role.role_id);
+                  const roleFunctions = response.data || [];
+                  
+                  // Actualizar el rol con sus funciones
+                  const roleWithFunctions = {
+                    ...role,
+                    funciones: roleFunctions
+                  };
+                  
+                  setCurrentRole(roleWithFunctions);
+                  setIsFunctionModalOpen(true);
+                } catch (err) {
+                  console.error('Error al cargar funciones del rol:', err);
+                  setError('Error al cargar las funciones del rol');
+                }
               }}
             />
           </div>

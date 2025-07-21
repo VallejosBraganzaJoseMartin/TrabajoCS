@@ -38,7 +38,14 @@ const UserTable = ({ users, getRoleName, getStatusBadge, onEdit, onDelete, onAss
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                 {user.roles && user.roles.length > 0 
-                  ? user.roles.map(role => role.name).join(', ')
+                  ? user.roles.map(role => {
+                      const roleName = role.name || role.role_name;
+                      return (
+                        <span key={role.id || role.role_id} className="mr-1">
+                          {roleName}
+                        </span>
+                      );
+                    })
                   : user.role 
                     ? user.role.name 
                     : 'Sin rol'}

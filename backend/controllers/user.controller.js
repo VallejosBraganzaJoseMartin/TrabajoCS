@@ -37,23 +37,12 @@ const getUserById = async (req, res) => {
   }
 };
 
-/* const createUser = async (req, res) => {
-  const { user_names, user_surenames, user_email, user_password, role_id, user_state } = req.body;
-  try {
-    const user = await User.create({ user_names, user_surenames, user_email, user_password, role_id, user_state });
-    res.status(200).json({ message: 'Usuario creado', data: user });
-  } catch (error) {
-    res.status(500).json({ message: 'Error al crear el usuario', error });
-  }
-}; */
-
 const updateUser = async (req, res) => {
   const id = req.params.id;
   const { user_names, user_surenames, user_email, user_password, user_state } = req.body;
   const transaction = await sequelize.transaction();
   
   try {
-    // Buscar el usuario primero con sus roles
     const user = await User.findByPk(id, {
       include: [{
         model: Role,
@@ -68,14 +57,10 @@ const updateUser = async (req, res) => {
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
     
-    // Verificar si el usuario es administrador y se está intentando desactivar
     const isAdmin = user.roles && user.roles.some(role => role.role_name === 'Administrador');
     
     if (isAdmin && user_state === false) {
-      // Contar cuántos administradores activos hay
       const adminRoleId = user.roles.find(role => role.role_name === 'Administrador').role_id;
-      
-      // Buscar usuarios con rol de administrador que estén activos
       const activeAdmins = await User.findAll({
         include: [{
           model: Role,
@@ -85,11 +70,10 @@ const updateUser = async (req, res) => {
         }],
         where: { 
           user_state: true,
-          user_id: { [Op.ne]: id } // Excluir al usuario actual
+          user_id: { [Op.ne]: id } 
         }
       });
       
-      // Si no hay otros administradores activos, no permitir la desactivación
       if (activeAdmins.length === 0) {
         await transaction.rollback();
         return res.status(400).json({ 
@@ -99,7 +83,6 @@ const updateUser = async (req, res) => {
       }
     }
     
-    // Preparar los datos para actualizar
     const updateData = { 
       user_names, 
       user_surenames, 
@@ -107,17 +90,14 @@ const updateUser = async (req, res) => {
       user_state 
     };
     
-    // Solo actualizar la contraseña si se proporciona una nueva
     if (user_password) {
       updateData.user_password = await bcrypt.hash(user_password, 10);
     }
     
-    // Actualizar el usuario
     await user.update(updateData, { transaction });
     
     await transaction.commit();
     
-    // Obtener el usuario actualizado con sus roles
     const updatedUser = await User.findByPk(id, {
       include: [{
         model: Role,
@@ -140,7 +120,6 @@ const deleteUser = async (req, res) => {
   const transaction = await sequelize.transaction();
   
   try {
-    // Buscar el usuario con sus roles
     const user = await User.findByPk(id, {
       include: [{
         model: Role,
@@ -155,14 +134,11 @@ const deleteUser = async (req, res) => {
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
     
-    // Verificar si el usuario es administrador
     const isAdmin = user.roles && user.roles.some(role => role.role_name === 'Administrador');
     
     if (isAdmin) {
-      // Contar cuántos administradores activos hay
       const adminRoleId = user.roles.find(role => role.role_name === 'Administrador').role_id;
       
-      // Buscar usuarios con rol de administrador que estén activos
       const activeAdmins = await User.findAll({
         include: [{
           model: Role,
@@ -172,16 +148,15 @@ const deleteUser = async (req, res) => {
         }],
         where: { 
           user_state: true,
-          user_id: { [Op.ne]: id } // Excluir al usuario actual
+          user_id: { [Op.ne]: id } 
         }
       });
       
-      // Si no hay otros administradores activos, no permitir la eliminación
       if (activeAdmins.length === 0) {
         await transaction.rollback();
         return res.status(400).json({ 
-          message: 'No se puede eliminar al último administrador activo', 
-          details: 'Debe haber al menos un administrador activo en el sistema' 
+          message: 'No se puede eliminar al último administrador activo.',
+          details: 'Esta acción está bloqueada porque el usuario seleccionado es el único administrador que queda en el sistema. Si se elimina, nadie podrá gestionar ni administrar el sistema. Por favor, asigne otro usuario como administrador antes de eliminar este.'
         });
       }
     }
@@ -205,7 +180,6 @@ const deleteUser = async (req, res) => {
   }
 };
 
-// Asignar roles a un usuario
 const assignRolesToUser = async (req, res) => {
   const userId = req.params.id;
   const { roleIds } = req.body;
@@ -217,17 +191,14 @@ const assignRolesToUser = async (req, res) => {
   const transaction = await sequelize.transaction();
   
   try {
-    // Verificar que el usuario existe
     const user = await User.findByPk(userId);
     if (!user) {
       await transaction.rollback();
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
     
-    // Eliminar todos los roles actuales del usuario
     await user.setRoles([], { transaction });
-    
-    // Asignar los nuevos roles
+ 
     if (roleIds.length > 0) {
       const roles = await Role.findAll({
         where: {
@@ -240,7 +211,6 @@ const assignRolesToUser = async (req, res) => {
     
     await transaction.commit();
     
-    // Obtener el usuario con sus roles actualizados
     const updatedUser = await User.findByPk(userId, {
       include: [{
         model: Role,
@@ -264,7 +234,6 @@ const assignRolesToUser = async (req, res) => {
 module.exports = {
   getUsers,
   getUserById,
-  /* createUser, */
   updateUser,
   deleteUser,
   assignRolesToUser

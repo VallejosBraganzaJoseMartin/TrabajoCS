@@ -3,6 +3,7 @@ import Layout from "../components/Layout";
 import IngredientTable from "../components/IngredientTable";
 import IngredientModal from "../components/IngredientModal";
 import ConfirmationModal from "../components/ConfirmationModal";
+import ErrorModal from "../components/ErrorModal";
 import { ingredientsApi } from "../api/ingredients";
 
 const IngredientsPage = () => {
@@ -12,6 +13,12 @@ const IngredientsPage = () => {
   const [ingredients, setIngredients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [errorModal, setErrorModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    details: ''
+  });
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
     id: null,
@@ -60,8 +67,27 @@ const IngredientsPage = () => {
       setIngredients(response.data || response);
       setModalOpen(false);
     } catch (err) {
-      setError('Error al guardar el ingrediente');
       console.error('Error:', err);
+      
+      // Mostrar mensaje de error en modal
+      let errorMessage = 'Error al guardar el ingrediente';
+      let errorDetails = '';
+      
+      if (err.response && err.response.data) {
+        if (err.response.data.message) {
+          errorMessage = err.response.data.message;
+        }
+        if (err.response.data.details) {
+          errorDetails = err.response.data.details;
+        }
+      }
+      
+      setErrorModal({
+        isOpen: true,
+        title: '¡Error al guardar!',
+        message: errorMessage,
+        details: errorDetails
+      });
     }
   };
 
@@ -159,6 +185,14 @@ const IngredientsPage = () => {
         confirmText="Eliminar"
         cancelText="Cancelar"
         type="danger"
+      />
+      
+      <ErrorModal
+        isOpen={errorModal.isOpen}
+        onClose={() => setErrorModal({...errorModal, isOpen: false})}
+        title={errorModal.title}
+        message={errorModal.message}
+        details={errorModal.details}
       />
     </Layout>
   );

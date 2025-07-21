@@ -3,15 +3,22 @@ import Layout from "../components/Layout";
 import PizzaTable from "../components/PizzaTable";
 import PizzaModal from "../components/PizzaModal";
 import ConfirmationModal from "../components/ConfirmationModal";
+import ErrorModal from "../components/ErrorModal";
 import { pizzasApi } from "../api/pizzas";
 
 const PizzasPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState("create"); // "create" o "edit"
+  const [modalMode, setModalMode] = useState("create"); 
   const [editingPizza, setEditingPizza] = useState(null);
   const [pizzas, setPizzas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [errorModal, setErrorModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    details: ''
+  });
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
     id: null,
@@ -63,12 +70,30 @@ const PizzasPage = () => {
       setPizzas(response.data || response);
       setModalOpen(false);
     } catch (err) {
-      alert('Error al guardar la pizza');
       console.error('Error:', err);
+      
+      // Mostrar mensaje de error en modal
+      let errorMessage = 'Error al guardar la pizza';
+      let errorDetails = '';
+      
+      if (err.response && err.response.data) {
+        if (err.response.data.message) {
+          errorMessage = err.response.data.message;
+        }
+        if (err.response.data.details) {
+          errorDetails = err.response.data.details;
+        }
+      }
+      
+      setErrorModal({
+        isOpen: true,
+        title: '¡Error al guardar!',
+        message: errorMessage,
+        details: errorDetails
+      });
     }
   };
 
-  // Abrir modal de confirmación
   const openConfirmModal = (id, name) => {
     setConfirmModal({
       isOpen: true,
@@ -77,7 +102,6 @@ const PizzasPage = () => {
     });
   };
 
-  // Cerrar modal de confirmación
   const closeConfirmModal = () => {
     setConfirmModal({
       isOpen: false,
@@ -86,7 +110,7 @@ const PizzasPage = () => {
     });
   };
 
-  // Eliminar pizza
+
   const handleDelete = async () => {
     try {
       await pizzasApi.delete(confirmModal.id);
@@ -99,7 +123,6 @@ const PizzasPage = () => {
     }
   };
 
-  // Editar pizza: abrir modal y cargar datos
   const handleEdit = (pizza) => {
     setModalMode("edit");
     setEditingPizza(pizza);
@@ -152,6 +175,14 @@ const PizzasPage = () => {
         confirmText="Eliminar"
         cancelText="Cancelar"
         type="danger"
+      />
+      
+      <ErrorModal
+        isOpen={errorModal.isOpen}
+        onClose={() => setErrorModal({...errorModal, isOpen: false})}
+        title={errorModal.title}
+        message={errorModal.message}
+        details={errorModal.details}
       />
     </Layout>
   );

@@ -24,12 +24,12 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/acceso-denegado" element={<AccessDeniedPage />} />
             <Route element={<ProtectedRoute> <Outlet /> </ProtectedRoute>}>
-              <Route path="/" element={<Navigate to="/menu" replace />} />
+              <Route path="/" element={<Navigate to="/login" replace />} />
               
-              {/* Ruta accesible para todos los usuarios autenticados */}
+              {}
               <Route path="/menu" element={<MenuPage />} />
               
-              {/* Rutas protegidas por permisos */}
+              {}
               <Route path="/pizzas" element={
                 <ProtectedFunctionRoute requiredFunctions={['ver_pizzas', 'gestionar_pizzas']}>
                   <PizzasPage />
@@ -66,7 +66,7 @@ function App() {
                 </ProtectedFunctionRoute>
               } />
               
-              <Route path="*" element={<Navigate to="/menu" replace />} />
+              <Route path="*" element={<AccessDeniedPage />} />
             </Route>
           </Routes>
         </Router>

@@ -41,6 +41,17 @@ const getPizzaById = async (req, res) => {
 const createPizza = async (req, res) => {
   const { piz_name, piz_origin, piz_state, url_image } = req.body;
   try {
+    const existingPizza = await Pizza.findOne({ 
+      where: { piz_name: piz_name } 
+    });
+    
+    if (existingPizza) {
+      return res.status(400).json({ 
+        message: `La pizza "${piz_name}" ya existe`, 
+        details: `No se puede agregar esta pizza porque ya existe en el sistema. Por favor, utilice un nombre diferente.`
+      });
+    }
+    
     const pizza = await Pizza.create({ piz_name, piz_origin, piz_state, url_image });
     res.status(200).json({
       message: 'Pizza creada',
@@ -58,6 +69,21 @@ const updatePizza = async (req, res) => {
   const id = req.params.id;
   const { piz_name, piz_origin, piz_state, url_image } = req.body;
   try {
+    // Verificar si ya existe otra pizza con el mismo nombre
+    const existingPizza = await Pizza.findOne({ 
+      where: { 
+        piz_name: piz_name,
+        piz_id: { [sequelize.Sequelize.Op.ne]: id }
+      } 
+    });
+    
+    if (existingPizza) {
+      return res.status(400).json({ 
+        message: `La pizza "${piz_name}" ya existe`, 
+        details: `No se puede ingresar este nombre porque ya existe otra pizza con el mismo nombre en el sistema.`
+      });
+    }
+    
     const [updated] = await Pizza.update(
       { piz_name, piz_origin, piz_state, url_image },
       { where: { piz_id: id }, returning: true }
@@ -84,20 +110,17 @@ const deletePizza = async (req, res) => {
   const transaction = await sequelize.transaction();
   
   try {
-    // Buscar por piz_id explícitamente
     const pizza = await Pizza.findOne({ where: { piz_id: id } });
     if (!pizza) {
       await transaction.rollback();
       return res.status(404).json({ message: 'Pizza no encontrada' });
     }
-    
-    // Primero eliminar las referencias en la tabla intermedia
+  
     await PizzaIngredient.destroy({
       where: { piz_id: id },
       transaction
     });
     
-    // Luego eliminar la pizza
     await pizza.destroy({ transaction });
     
     await transaction.commit();

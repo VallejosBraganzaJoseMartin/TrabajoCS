@@ -2,7 +2,6 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:3000/api';
 
-// Configurar interceptor para incluir token en todas las peticiones
 axios.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -26,17 +25,14 @@ export const usersApi = {
       const users = response.data.data || response.data;
       console.log('Usuarios obtenidos:', users);
       
-      // Si no hay usuarios, devolver un array vacío
       if (!Array.isArray(users)) {
         console.warn('No se recibió un array de usuarios');
         return [];
       }
-      
-      // Mapear la estructura del backend a la esperada por el frontend
+
       const mappedUsers = users.map(user => {
         console.log('Mapeando usuario:', user);
         
-        // Obtener el primer rol del usuario (si tiene)
         const primaryRole = user.roles && user.roles.length > 0 ? user.roles[0] : null;
         
         return {
@@ -50,7 +46,6 @@ export const usersApi = {
             name: role.role_name,
             description: role.role_descripcion
           })) : [],
-          // Para compatibilidad con el código existente
           roleId: primaryRole ? primaryRole.role_id : null,
           role: primaryRole ? {
             id: primaryRole.role_id,
@@ -68,7 +63,6 @@ export const usersApi = {
     }
   },
 
-  // Obtener un usuario por ID
   getById: async (id) => {
     try {
       const response = await axios.get(`${API_URL}/users/${id}`);
@@ -79,7 +73,6 @@ export const usersApi = {
     }
   },
 
-  // Crear un nuevo usuario (normalmente se usa authApi.register)
   create: async (userData) => {
     try {
       const response = await axios.post(`${API_URL}/users`, userData);
@@ -90,7 +83,6 @@ export const usersApi = {
     }
   },
 
-  // Actualizar un usuario
   update: async (id, userData) => {
     try {
       console.log(`Enviando solicitud PUT a ${API_URL}/users/${id} con datos:`, userData);
@@ -104,7 +96,6 @@ export const usersApi = {
     }
   },
 
-  // Eliminar un usuario
   delete: async (id) => {
     try {
       const response = await axios.delete(`${API_URL}/users/${id}`);
@@ -115,7 +106,6 @@ export const usersApi = {
     }
   },
   
-  // Asignar roles a un usuario
   assignRoles: async (userId, roleIds) => {
     try {
       const response = await axios.post(`${API_URL}/users/${userId}/roles`, { roleIds });

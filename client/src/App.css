@@ -1,5 +1,4 @@
-/* Reset para que la aplicación ocupe toda la pantalla */
-#root {
+html, body, #root {
   width: 100%;
   height: 100vh;
   margin: 0;

@@ -30,7 +30,6 @@ const ManagePizzaIngredients = () => {
       .then(([pizzaRes, pizzaIngs, allIngs]) => {
         setPizza(pizzaRes.data || pizzaRes);
         setCurrentIngredients(Array.isArray(pizzaIngs) ? pizzaIngs : []);
-        // Filtrar solo ingredientes activos para la selección
         const activeIngredients = Array.isArray(allIngs.data) 
           ? allIngs.data.filter(ing => ing.ing_state === true)
           : [];
@@ -44,14 +43,12 @@ const ManagePizzaIngredients = () => {
     e.preventDefault();
     setError(null);
     setSuccessMessage(null);
-    
-    // Validar que se haya seleccionado un ingrediente
+
     if (!selectedIngId) {
       setError("Debe seleccionar un ingrediente");
       return;
     }
     
-    // Validar que se haya ingresado una cantidad
     if (!quantity) {
       setError("Debe ingresar la cantidad del ingrediente");
       return;
@@ -166,7 +163,8 @@ const ManagePizzaIngredients = () => {
                       <span className="font-semibold text-gray-700">{ing.ing_name}</span>
                       <div className="flex items-center space-x-2">
                         <input
-                          type="text"
+                          type="number"
+                          min="1"
                           value={ing.piz_ing_quantity}
                           onChange={e => handleEditQuantity(ing.ing_id, e.target.value)}
                           className="w-24 text-sm border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500"
@@ -222,9 +220,10 @@ const ManagePizzaIngredients = () => {
                   <div>
                     <label htmlFor="quantity" className="block text-sm font-medium text-gray-700">Cantidad</label>
                     <input
-                      type="text"
+                      type="number"
                       name="piz_ing_quantity"
                       id="quantity"
+                      min="1"
                       className={`mt-1 block w-full shadow-sm sm:text-sm rounded-md ${!quantity && error ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-red-500 focus:border-red-500'}`}
                       placeholder="Ej: 100 gr"
                       value={quantity}

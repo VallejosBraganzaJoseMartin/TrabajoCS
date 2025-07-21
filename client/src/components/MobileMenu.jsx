@@ -36,6 +36,17 @@ const MobileMenu = ({ isOpen, onClose }) => {
         </div>
         
         <div className="flex flex-col p-4 space-y-2 overflow-y-auto h-full">
+          <Link 
+            to="/menu" 
+            className={`flex items-center px-4 py-2 text-sm font-semibold ${location.pathname === '/menu' ? 'text-red-600 border-l-4 border-red-500' : 'text-gray-500 border-l-4 border-transparent'}`}
+            onClick={onClose}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            Menú
+          </Link>
+          
           {(hasFunction('ver_pizzas') || hasFunction('gestionar_pizzas')) && (
             <Link 
               to="/pizzas" 
@@ -49,17 +60,6 @@ const MobileMenu = ({ isOpen, onClose }) => {
               Pizzas
             </Link>
           )}
-          
-          <Link 
-            to="/menu" 
-            className={`flex items-center px-4 py-2 text-sm font-semibold ${location.pathname === '/menu' ? 'text-red-600 border-l-4 border-red-500' : 'text-gray-500 border-l-4 border-transparent'}`}
-            onClick={onClose}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-            Menú
-          </Link>
           
           {(hasFunction('ver_ingredientes') || hasFunction('gestionar_ingredientes')) && (
             <Link 

@@ -1,9 +1,34 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
+import { usePermission } from '../contexts/PermissionContext';
 
 const AccessDeniedPage = () => {
+  const navigate = useNavigate();
+  const { hasFunction, userFunctions } = usePermission();
+  const [redirectPath, setRedirectPath] = useState('/login');
+
+  useEffect(() => {
+    // Determinar a dónde redirigir al usuario basado en sus permisos
+    if (hasFunction('ver_pizzas') || hasFunction('gestionar_pizzas')) {
+      setRedirectPath('/pizzas');
+    } else if (hasFunction('ver_ingredientes') || hasFunction('gestionar_ingredientes')) {
+      setRedirectPath('/ingredientes');
+    } else if (hasFunction('gestionar_usuarios') || hasFunction('ver_usuarios')) {
+      setRedirectPath('/usuarios');
+    } else if (hasFunction('gestionar_roles')) {
+      setRedirectPath('/roles');
+    } else if (hasFunction('gestionar_funciones')) {
+      setRedirectPath('/funciones');
+    } else if (hasFunction('ver_menu')) {
+      setRedirectPath('/menu');
+    } else {
+      // Si no tiene ningún permiso específico, redirigir al login
+      setRedirectPath('/login');
+    }
+  }, [hasFunction, userFunctions]);
+
   return (
     <div className="flex h-screen bg-gray-100">
       <Sidebar />
@@ -21,13 +46,13 @@ const AccessDeniedPage = () => {
               No tienes permisos para acceder a esta página.
             </p>
             <Link
-              to="/menu"
+              to={redirectPath}
               className="inline-flex items-center px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg shadow-md transition duration-300"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
-              Volver al Menú Principal
+              Volver a Página Disponible
             </Link>
           </div>
         </main>

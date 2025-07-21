@@ -1,14 +1,35 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { authApi } from '../api/auth';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { usePermission } from '../contexts/PermissionContext';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { login } = useAuth();
+  const { hasFunction } = usePermission();
   const navigate = useNavigate();
+  
+  // Función para determinar la página de redirección según los permisos
+  const getRedirectPath = (userFunctions) => {
+    if (userFunctions.includes('ver_menu')) {
+      return '/menu';
+    } else if (userFunctions.includes('ver_pizzas') || userFunctions.includes('gestionar_pizzas')) {
+      return '/pizzas';
+    } else if (userFunctions.includes('ver_ingredientes') || userFunctions.includes('gestionar_ingredientes')) {
+      return '/ingredientes';
+    } else if (userFunctions.includes('gestionar_usuarios') || userFunctions.includes('ver_usuarios')) {
+      return '/usuarios';
+    } else if (userFunctions.includes('gestionar_roles')) {
+      return '/roles';
+    } else if (userFunctions.includes('gestionar_funciones')) {
+      return '/funciones';
+    } else {
+      return '/acceso-denegado';
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,6 +44,8 @@ export default function LoginPage() {
       console.log('Usuario logueado:', user);
       
       login(token, user);
+      
+      // Siempre redirigir al menú después del login
       navigate('/menu', { replace: true });
     } catch (err) {
       console.log("Error en el login:", err);

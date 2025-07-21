@@ -24,6 +24,18 @@ export default function UserModal({
 
   useEffect(() => {
     if (mode === 'edit' && user) {
+      // Determinar el estado activo del usuario
+      const isActive = user.isActive !== undefined ? user.isActive : 
+                      (user.user_state !== undefined ? user.user_state : 
+                      (user.user_status !== undefined ? user.user_status : true));
+      
+      console.log('Estado del usuario:', { 
+        isActive, 
+        user_state: user.user_state, 
+        isActive_prop: user.isActive, 
+        user_status: user.user_status 
+      });
+      
       setFormData({
         firstName: user.firstName || user.user_names || '',
         lastName: user.lastName || user.user_surenames || '',
@@ -31,22 +43,23 @@ export default function UserModal({
         password: '',
         confirmPassword: '',
         roleId: user.roleId || user.role_id || '',
-        isActive: user.isActive !== undefined ? user.isActive : (user.user_status !== undefined ? user.user_status : true)
+        isActive: isActive
       });
     } else {
-      // Resetear formulario para modo crear
+      // Resetear formulario para modo crear y seleccionar el primer rol disponible si existe
+      const defaultRoleId = roles && roles.length > 0 ? (roles[0].role_id || roles[0].id) : '';
       setFormData({
         firstName: '',
         lastName: '',
         email: '',
         password: '',
         confirmPassword: '',
-        roleId: '',
+        roleId: defaultRoleId,
         isActive: true
       });
     }
     setErrors({});
-  }, [mode, user, isOpen]);
+  }, [mode, user, isOpen, roles]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -139,6 +152,8 @@ export default function UserModal({
         roleId: parseInt(formData.roleId),
         isActive: formData.isActive
       };
+      
+      console.log('Datos del usuario a guardar:', userData);
 
       if (mode === 'create') {
         // Para crear usuarios, usar el endpoint de registro
@@ -164,6 +179,8 @@ export default function UserModal({
           user_email: formData.email.trim(),
           user_state: formData.isActive
         };
+        
+        console.log('Datos enviados al backend:', updateData);
         
         // Solo incluir la contraseña si se ha proporcionado una nueva
         if (formData.password) {
@@ -356,7 +373,6 @@ export default function UserModal({
                       }`}
                       required
                     >
-                        <option value="">Selecciona un rol</option>
                         {roles.map((role) => (
                           <option key={role.role_id || role.id} value={role.role_id || role.id}>
                             {role.role_name || role.name}
@@ -374,10 +390,18 @@ export default function UserModal({
                       type="checkbox" 
                       name="user_status" 
                       checked={formData.isActive} 
-                      onChange={handleInputChange} 
+                      onChange={(e) => {
+                        console.log('Checkbox cambiado:', e.target.checked);
+                        setFormData(prev => ({
+                          ...prev,
+                          isActive: e.target.checked
+                        }));
+                      }} 
                       className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded" 
                     />
-                    <label htmlFor="user_status" className="ml-2 block text-sm text-gray-900">Usuario Activo</label>
+                    <label htmlFor="user_status" className="ml-2 block text-sm text-gray-900">
+                      Usuario {formData.isActive ? 'Activo' : 'Inactivo'}
+                    </label>
                 </div>
             </div>
             

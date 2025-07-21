@@ -15,6 +15,12 @@ const AssignFunctionModal = ({ isOpen, onClose, onSave, role, availableFunctions
       setSelectedFunctions([]);
     }
   }, [role]);
+  
+  // Función auxiliar para verificar si una función está seleccionada
+  const isFunctionSelected = (func) => {
+    const funcId = func.id || func.funcion_id;
+    return selectedFunctions.includes(funcId);
+  };
 
   const handleFunctionToggle = (functionId) => {
     if (selectedFunctions.includes(functionId)) {
@@ -34,30 +40,65 @@ const AssignFunctionModal = ({ isOpen, onClose, onSave, role, availableFunctions
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <h2 className="text-xl font-bold mb-4">
-          Asignar Funciones al Rol: {role ? role.name : ''}
-        </h2>
+        <div className="flex justify-between items-center mb-2">
+          <h2 className="text-xl font-bold">
+            Asignar Funciones al Rol: <span className="text-red-600">{role ? (role.name || role.role_name) : ''}</span>
+          </h2>
+          <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-sm font-medium">
+            {selectedFunctions.length} seleccionadas
+          </span>
+        </div>
+        <p className="text-gray-600 text-sm mb-4">Haga clic en una función para asignarla o desasignarla. Las funciones con un visto (✓) están asignadas al rol.</p>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Funciones Disponibles
-            </label>
-            <div className="space-y-2 max-h-60 overflow-y-auto p-2 border rounded">
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-gray-700 text-sm font-bold">
+                Funciones Disponibles
+              </label>
+              <div className="flex items-center">
+                <button 
+                  type="button" 
+                  className="text-xs text-blue-600 hover:text-blue-800 mr-3"
+                  onClick={() => setSelectedFunctions(availableFunctions.map(f => f.id || f.funcion_id))}
+                >
+                  Seleccionar todas
+                </button>
+                <button 
+                  type="button" 
+                  className="text-xs text-gray-600 hover:text-gray-800"
+                  onClick={() => setSelectedFunctions([])}
+                >
+                  Desmarcar todas
+                </button>
+              </div>
+            </div>
+            
+            <div className="space-y-1 max-h-60 overflow-y-auto p-2 border rounded bg-gray-50">
               {availableFunctions.map(func => (
-                <div key={func.id} className={`flex items-center p-2 ${selectedFunctions.includes(func.id) ? 'bg-gray-100 rounded' : ''}`}>
-                  <input
-                    type="checkbox"
-                    id={`function-${func.id}`}
-                    checked={selectedFunctions.includes(func.id)}
-                    onChange={() => handleFunctionToggle(func.id)}
-                    className="mr-2 h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
-                  />
-                  {selectedFunctions.includes(func.id) && (
-                    <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded mr-2">Asignada</span>
+                <div 
+                  key={func.id || func.funcion_id} 
+                  className={`flex items-center p-2 rounded transition-all duration-200 ${isFunctionSelected(func) ? 'bg-green-50 border border-green-200' : 'hover:bg-gray-50'}`}
+                  onClick={() => handleFunctionToggle(func.id || func.funcion_id)}
+                >
+                  {isFunctionSelected(func) ? (
+                    <div className="flex items-center justify-center w-6 h-6 mr-3 rounded-full bg-green-500 text-white shadow-sm">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                  ) : (
+                    <div className="w-6 h-6 mr-3 rounded-full border-2 border-gray-300"></div>
                   )}
-                  <label htmlFor={`function-${func.id}`} className="text-sm">
-                    {func.name} {func.descripcion && `- ${func.descripcion}`}
-                  </label>
+                  <div className="flex-grow">
+                    <span className={`${isFunctionSelected(func) ? 'font-medium text-green-700' : 'text-gray-700'}`}>
+                      {func.name || func.funcion_name}
+                    </span>
+                    {(func.descripcion || func.funcion_descripcion) && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        {func.descripcion || func.funcion_descripcion}
+                      </p>
+                    )}
+                  </div>
                 </div>
               ))}
               {availableFunctions.length === 0 && (

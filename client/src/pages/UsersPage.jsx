@@ -76,10 +76,35 @@ const UsersPage = () => {
     const user = users.find(u => (u.id === id || u.user_id === id));
     const userName = user ? `${user.firstName || user.user_names || ''} ${user.lastName || user.user_surenames || ''}`.trim() : 'este usuario';
     
+    // Verificar si el usuario es administrador
+    const isAdmin = user && user.roles && user.roles.some(role => 
+      role.name === 'Administrador' || role.role_name === 'Administrador'
+    );
+    
+    // Contar cuántos administradores hay en total
+    const adminCount = users.filter(u => 
+      u.roles && u.roles.some(role => 
+        role.name === 'Administrador' || role.role_name === 'Administrador'
+      )
+    ).length;
+    
+    let warningMessage = null;
+    
+    if (isAdmin) {
+      if (adminCount === 1) {
+        warningMessage = 'Este usuario es el único administrador del sistema. Si lo eliminas, nadie podrá gestionar el sistema. Esta acción está bloqueada.';
+      } else {
+        warningMessage = 'Este usuario tiene rol de administrador. Asegúrate de que haya otro administrador activo en el sistema antes de eliminarlo.';
+      }
+    }
+    
     setConfirmModal({
       isOpen: true,
       id,
-      name: userName
+      name: userName,
+      isAdmin,
+      adminCount,
+      warningMessage
     });
   };
 
@@ -100,7 +125,17 @@ const UsersPage = () => {
       closeConfirmModal();
     } catch (err) {
       console.error('Error deleting user:', err);
-      setError('Error al eliminar el usuario');
+      
+      // Verificar si es el error de último administrador
+      if (err.response?.data?.message?.includes('último administrador')) {
+        setError(
+          err.response.data.details || 
+          'No se puede eliminar al último administrador activo. Debe haber al menos un administrador en el sistema.'
+        );
+      } else {
+        setError('Error al eliminar el usuario: ' + (err.response?.data?.message || err.message || 'Error desconocido'));
+      }
+      
       closeConfirmModal();
     }
   };
@@ -154,10 +189,26 @@ const UsersPage = () => {
   }
 
   if (error) {
+    // Verificar si es el mensaje específico del último administrador
+    const isLastAdminError = error.includes('último administrador') || 
+                            error.includes('Esta acción está bloqueada') || 
+                            error.includes('nadie podrá gestionar');
+    
     return (
       <Layout title="Usuarios">
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
           {error}
+        </div>
+        <div className="mt-4 flex justify-center">
+          <button 
+            onClick={() => setError(null)}
+            className="flex items-center justify-center bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Volver a Usuarios
+          </button>
         </div>
       </Layout>
     );
@@ -243,6 +294,7 @@ const UsersPage = () => {
         onConfirm={handleDeleteUser}
         title="Eliminar Usuario"
         message={`¿Estás seguro de que deseas eliminar a ${confirmModal.name}? Esta acción no se puede deshacer.`}
+        warningMessage={confirmModal.warningMessage}
         confirmText="Eliminar"
         cancelText="Cancelar"
         type="danger"

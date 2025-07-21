@@ -41,6 +41,18 @@ const getIngredientById = async (req, res) => {
 const createIngredient = async (req, res) => {
   const { ing_name, ing_calories, ing_state } = req.body;
   try {
+    // Verificar si ya existe un ingrediente con el mismo nombre
+    const existingIngredient = await Ingredient.findOne({ 
+      where: { ing_name: ing_name } 
+    });
+    
+    if (existingIngredient) {
+      return res.status(400).json({ 
+        message: `¡ATENCIÓN! El ingrediente "${ing_name}" YA EXISTE`, 
+        details: `No se puede agregar este ingrediente porque ya existe en el sistema. Por favor, utilice un nombre diferente.`
+      });
+    }
+    
     const ingredient = await Ingredient.create({ ing_name, ing_calories, ing_state });
     res.status(200).json({
       message: 'Ingrediente creado',
@@ -58,6 +70,20 @@ const updateIngredient = async (req, res) => {
   const id = req.params.id;
   const { ing_name, ing_calories, ing_state } = req.body;
   try {
+    const existingIngredient = await Ingredient.findOne({ 
+      where: { 
+        ing_name: ing_name,
+        ing_id: { [sequelize.Sequelize.Op.ne]: id } 
+      } 
+    });
+    
+    if (existingIngredient) {
+      return res.status(400).json({ 
+        message: `El ingrediente "${ing_name}" ya existe`, 
+        details: `No se puede ingresar este nombre porque ya existe otro ingrediente con el mismo nombre en el sistema.`
+      });
+    }
+    
     const [updated] = await Ingredient.update(
       { ing_name, ing_calories, ing_state },
       { where: { ing_id: id }, returning: true }
@@ -90,13 +116,11 @@ const deleteIngredient = async (req, res) => {
       return res.status(404).json({ message: 'Ingrediente no encontrado' });
     }
     
-    // Primero eliminar las referencias en la tabla intermedia
     await PizzaIngredient.destroy({
       where: { ing_id: id },
       transaction
     });
-    
-    // Luego eliminar el ingrediente
+
     await ingredient.destroy({ transaction });
     
     await transaction.commit();

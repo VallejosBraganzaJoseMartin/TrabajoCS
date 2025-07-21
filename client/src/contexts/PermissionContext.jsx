@@ -13,20 +13,17 @@ export function PermissionProvider({ children }) {
       if (isAuthenticated && user) {
         try {
           console.log('Usuario autenticado:', user);
-          // Inicializamos un array vacío para las funciones
           let functions = [];
 
           if (user.roles) {
             console.log('Roles del usuario:', user.roles);
-            
-            // Obtener las funciones de cada rol desde el backend
+
             for (const role of user.roles) {
               const roleId = role.id || role.role_id;
               try {
                 const response = await permissionsApi.getRoleFunctions(roleId);
                 const roleFunctions = response.data || [];
                 
-                // Mapear las funciones del rol a nombres de función
                 roleFunctions.forEach(func => {
                   const functionName = func.funcion_name;
                   if (functionName) {
@@ -36,9 +33,10 @@ export function PermissionProvider({ children }) {
               } catch (error) {
                 console.error(`Error al obtener funciones del rol ${roleId}:`, error);
                 
-                // Fallback a la asignación estática si hay un error
                 const roleName = role.name || role.role_name;
                 console.log('Usando asignación estática para el rol:', roleName);
+                
+                functions.push('ver_menu');
                 
                 if (roleName === 'Administrador') {
                   functions.push(
@@ -56,9 +54,7 @@ export function PermissionProvider({ children }) {
               }
             }
           }
-         
-          
-          // Eliminar duplicados
+
           functions = [...new Set(functions)];
           setUserFunctions(functions);
         } catch (error) {
@@ -75,17 +71,14 @@ export function PermissionProvider({ children }) {
     loadUserFunctions();
   }, [isAuthenticated, user]);
 
-  // Verificar si el usuario tiene una función específica
   const hasFunction = (functionName) => {
     return userFunctions.includes(functionName);
   };
 
-  // Verificar si el usuario tiene al menos una de las funciones especificadas
   const hasAnyFunction = (functionNames) => {
     return functionNames.some(fn => userFunctions.includes(fn));
   };
 
-  // Verificar si el usuario tiene todas las funciones especificadas
   const hasAllFunctions = (functionNames) => {
     return functionNames.every(fn => userFunctions.includes(fn));
   };

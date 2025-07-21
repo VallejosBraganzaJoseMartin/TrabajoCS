@@ -70,11 +70,34 @@ const deleteRole = async (req, res) => {
   const transaction = await sequelize.transaction();
   
   try {
-    const role = await Role.findByPk(id);
+    const role = await Role.findByPk(id, {
+      include: [{
+        model: Funcion,
+        as: 'funciones',
+        through: { attributes: [] }
+      }]
+    });
+    
     if (!role) {
       await transaction.rollback();
       return res.status(404).json({ message: 'Rol no encontrado' });
     }
+    
+    // Verificar si es el rol de Administrador
+    if (role.role_name === 'Administrador') {
+      await transaction.rollback();
+      return res.status(400).json({ 
+        message: 'No se puede eliminar el rol de Administrador', 
+        details: 'Este rol es necesario para el funcionamiento del sistema. Eliminar el rol de Administrador no es aconsejable ya que podría comprometer la seguridad y la gestión del sistema. Si necesita modificar permisos, considere crear un nuevo rol o editar los permisos existentes.'
+      });
+    }
+    
+    // Eliminar las referencias en la tabla intermedia users_roles
+    const UserRole = require('../models/UserRole.model');
+    await UserRole.destroy({
+      where: { role_id: id },
+      transaction
+    });
     
     // Eliminar las referencias en la tabla intermedia roles_funciones
     await RoleFuncion.destroy({

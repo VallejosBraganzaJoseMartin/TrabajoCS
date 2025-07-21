@@ -1,11 +1,9 @@
-// backend/config/associations.js (o directamente en app.js)
-
 const User = require('../models/User.model');
 const Role = require('../models/Role.model');
 const Funcion = require('../models/Funcion.model');
 const UserRole = require('../models/UserRole.model'); 
 const RoleFuncion = require('../models/RoleFuncion.model'); 
-// Relación muchos a muchos entre User y Role
+
 User.belongsToMany(Role, {
   through: UserRole,
   foreignKey: 'user_id',
@@ -33,4 +31,4 @@ Funcion.belongsToMany(Role, {
   as: 'roles'
 });
 
-module.exports = { User, Role, Funcion, UserRole, RoleFuncion }; // Exporta los modelos con asociaciones si los usas en otros lugares
+module.exports = { User, Role, Funcion, UserRole, RoleFuncion }; 

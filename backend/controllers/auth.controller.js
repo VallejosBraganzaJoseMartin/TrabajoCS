@@ -9,16 +9,15 @@ const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
 // Blacklist de tokens en memoria
 const tokenBlacklist = [];
 
-// Registro de usuario
+
 const register = async (req, res) => {
   const { user_names, user_surenames, user_email, user_password, role_id } = req.body;
   try {
-    // Verificar si el email ya existe
+  
     const existing = await User.findOne({ where: { user_email } });
     if (existing) {
       return res.status(400).json({ message: 'El email ya está registrado' });
     }
-    // Hashear la contraseña
     const hashedPassword = await bcrypt.hash(user_password, 10);
     const user = await User.create({
       user_names,
@@ -33,7 +32,6 @@ const register = async (req, res) => {
   }
 };
 
-// Login de usuario
 const login = async (req, res) => {
   const { user_email, user_password } = req.body;
   try {
@@ -47,7 +45,7 @@ const login = async (req, res) => {
           model: Funcion,
           as: 'funciones', 
           through: { attributes: [] },
-          attributes: ['funcion_name'] // Solo queremos el nombre de la función
+          attributes: ['funcion_name'] 
         }]
       }]
     });
@@ -59,7 +57,6 @@ const login = async (req, res) => {
       });
     }
 
-    // Verificar si el usuario está activo
     if (user.user_state === false) {
       return res.status(403).json({ 
         message: 'Cuenta desactivada', 
@@ -75,14 +72,12 @@ const login = async (req, res) => {
       });
     }
 
-    // Extraer roles y funciones
     const userRoles = user.roles ? user.roles.map(role => ({
         role_id: role.role_id,
         role_name: role.role_name,
         funciones: role.funciones ? role.funciones.map(func => func.funcion_name) : []
     })) : [];
 
-    // Generar token incluyendo los roles y sus funciones
     const token = jwt.sign({
         user_id: user.user_id,
         user_email: user.user_email, 
