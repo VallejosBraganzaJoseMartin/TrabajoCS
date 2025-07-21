@@ -6,7 +6,6 @@ const Header = ({ currentPage, onMenuToggle }) => {
   const location = useLocation();
   const { user } = useAuth();
   
-  // Si se pasa currentPage, usarlo; si no, determinar desde la ubicación
   const getPageName = () => {
     if (currentPage) return currentPage;
     

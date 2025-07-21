@@ -5,9 +5,7 @@ const AssignFunctionModal = ({ isOpen, onClose, onSave, role, availableFunctions
 
   useEffect(() => {
     if (role && role.funciones) {
-      // Mapear los IDs de las funciones del rol
       const functionIds = role.funciones.map(func => {
-        // Manejar tanto el formato del frontend (id) como del backend (funcion_id)
         return func.id || func.funcion_id;
       });
       setSelectedFunctions(functionIds);
@@ -15,8 +13,7 @@ const AssignFunctionModal = ({ isOpen, onClose, onSave, role, availableFunctions
       setSelectedFunctions([]);
     }
   }, [role]);
-  
-  // Función auxiliar para verificar si una función está seleccionada
+
   const isFunctionSelected = (func) => {
     const funcId = func.id || func.funcion_id;
     return selectedFunctions.includes(funcId);

@@ -84,7 +84,7 @@ const Sidebar = () => {
           </Link>
         )}
       </div>
-      {/* Botón de Cerrar Sesión */}
+      {}
       <div className="p-4 mt-auto border-t">
         <button 
           onClick={handleLogout}
