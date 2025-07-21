@@ -150,7 +150,13 @@ export default function UserModal({
           role_id: parseInt(formData.roleId),
           user_state: formData.isActive
         };
-        await authApi.register(registerData);
+        // Registrar usuario y obtener el id
+        const response = await authApi.register(registerData);
+        const newUser = response.data || response;
+        // Asignar el rol explícitamente si el backend no lo hace automáticamente
+        if (newUser && newUser.user_id && formData.roleId) {
+          await usersApi.assignRoles(newUser.user_id, [parseInt(formData.roleId)]);
+        }
       } else {
         // Para editar usuarios, usar el endpoint de actualización
         // Usar el id correcto (user.id o user.user_id)

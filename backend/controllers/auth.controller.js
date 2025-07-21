@@ -37,33 +37,42 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   const { user_email, user_password } = req.body;
   try {
+
     const user = await User.findOne({
       where: { user_email },
       include: [{
         model: Role,
-        as: 'roles', 
-        through: { attributes: [] }, 
+        as: 'roles',
+        through: { attributes: [] },
         include: [{
           model: Funcion,
-          as: 'funciones', 
+          as: 'funciones',
           through: { attributes: [] },
-          attributes: ['funcion_name'] // Solo queremos el nombre de la función
+          attributes: ['funcion_name']
         }]
       }]
     });
 
     if (!user) {
-      return res.status(401).json({ 
-        message: 'Credenciales incorrectas', 
-        details: 'Por favor, revise su correo electrónico o contraseña' 
+      return res.status(401).json({
+        message: 'Credenciales incorrectas',
+        details: 'Por favor, revise su correo electrónico o contraseña'
+      });
+    }
+
+    // Solo permitir login si el usuario está activo
+    if (user.user_state === false) {
+      return res.status(403).json({
+        message: 'Usuario inactivo',
+        details: 'Tu cuenta está desactivada. Contacta al administrador.'
       });
     }
 
     const valid = await bcrypt.compare(user_password, user.user_password);
     if (!valid) {
-      return res.status(401).json({ 
-        message: 'Credenciales incorrectas', 
-        details: 'Por favor, revise su correo electrónico o contraseña' 
+      return res.status(401).json({
+        message: 'Credenciales incorrectas',
+        details: 'Por favor, revise su correo electrónico o contraseña'
       });
     }
 

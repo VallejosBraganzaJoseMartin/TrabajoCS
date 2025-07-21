@@ -56,6 +56,7 @@ const updateFuncion = async (req, res) => {
   }
 };
 
+const UserRole = require('../models/UserRole.model');
 const deleteFuncion = async (req, res) => {
   const id = req.params.id;
   const transaction = await sequelize.transaction();
@@ -66,13 +67,16 @@ const deleteFuncion = async (req, res) => {
       await transaction.rollback();
       return res.status(404).json({ message: 'Función no encontrada' });
     }
-    
-    // Primero eliminar las referencias en la tabla intermedia
+    // Eliminar las referencias en la tabla intermedia roles_funciones
     await RoleFuncion.destroy({
       where: { funcion_id: id },
       transaction
     });
-    
+    // Eliminar las referencias en la tabla intermedia users_roles (si existiera relación directa)
+    // await UserRole.destroy({
+    //   where: { funcion_id: id },
+    //   transaction
+    // });
     // Luego eliminar la función
     await funcion.destroy({ transaction });
     

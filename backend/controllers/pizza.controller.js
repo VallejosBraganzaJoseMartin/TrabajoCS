@@ -77,6 +77,7 @@ const updatePizza = async (req, res) => {
   }
 };
 
+const PizzaIngredient = require('../models/PizzaIngredient.model');
 const deletePizza = async (req, res) => {
   const id = req.params.id;
   try {
@@ -85,6 +86,8 @@ const deletePizza = async (req, res) => {
     if (!pizza) {
       return res.status(404).json({ message: 'Pizza no encontrada' });
     }
+    // Eliminar registros de la tabla intermedia
+    await PizzaIngredient.destroy({ where: { piz_id: id } });
     await pizza.destroy();
     res.status(200).json({
       message: 'Pizza eliminada',

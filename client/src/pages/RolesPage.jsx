@@ -170,8 +170,11 @@ const RolesPage = () => {
           onSave={async (selectedFunctions) => {
             try {
               await permissionsApi.assignFunctionsToRole(currentRole.id, selectedFunctions);
-              setIsFunctionModalOpen(false);
+              // Volver a cargar el rol actualizado desde el backend antes de cerrar el modal
+              const updatedRole = await rolesApi.getById(currentRole.id);
+              setCurrentRole(updatedRole);
               await fetchRoles(); // Recargar los roles con sus funciones actualizadas
+              setIsFunctionModalOpen(false);
             } catch (err) {
               console.error('Error al asignar funciones:', err);
               setError('Error al asignar funciones al rol');

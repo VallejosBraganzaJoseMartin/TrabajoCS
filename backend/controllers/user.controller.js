@@ -88,6 +88,7 @@ const updateUser = async (req, res) => {
   }
 };
 
+const UserRole = require('../models/UserRole.model');
 const deleteUser = async (req, res) => {
   const id = req.params.id;
   try {
@@ -95,6 +96,8 @@ const deleteUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
+    // Eliminar registros de la tabla intermedia users_roles
+    await UserRole.destroy({ where: { user_id: id } });
     await user.destroy();
     res.status(200).json({ message: 'Usuario eliminado', data: user });
   } catch (error) {

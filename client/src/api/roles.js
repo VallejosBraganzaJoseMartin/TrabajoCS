@@ -10,7 +10,12 @@ export const rolesApi = {
       return roles.map(role => ({
         id: role.role_id,
         name: role.role_name,
-        descripcion: role.role_descripcion
+        descripcion: role.role_descripcion,
+        funciones: (role.funciones || []).map(funcion => ({
+          id: funcion.funcion_id,
+          name: funcion.funcion_name,
+          descripcion: funcion.funcion_descripcion
+        }))
       }));
     } catch (error) {
       console.error('Error al obtener roles:', error);
@@ -47,7 +52,12 @@ export const rolesApi = {
       return {
         id: role.role_id,
         name: role.role_name,
-        descripcion: role.role_descripcion
+        descripcion: role.role_descripcion,
+        funciones: (role.funciones || []).map(funcion => ({
+          id: funcion.funcion_id,
+          name: funcion.funcion_name,
+          descripcion: funcion.funcion_descripcion
+        }))
       };
     } catch (error) {
       console.error('Error al obtener rol:', error);

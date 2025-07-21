@@ -65,6 +65,7 @@ const updateRole = async (req, res) => {
   }
 };
 
+const UserRole = require('../models/UserRole.model');
 const deleteRole = async (req, res) => {
   const id = req.params.id;
   const transaction = await sequelize.transaction();
@@ -75,13 +76,16 @@ const deleteRole = async (req, res) => {
       await transaction.rollback();
       return res.status(404).json({ message: 'Rol no encontrado' });
     }
-    
     // Eliminar las referencias en la tabla intermedia roles_funciones
     await RoleFuncion.destroy({
       where: { role_id: id },
       transaction
     });
-    
+    // Eliminar las referencias en la tabla intermedia users_roles
+    await UserRole.destroy({
+      where: { role_id: id },
+      transaction
+    });
     // Eliminar el rol
     await role.destroy({ transaction });
     
