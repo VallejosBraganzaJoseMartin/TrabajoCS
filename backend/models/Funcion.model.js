@@ -1,29 +1,29 @@
+// backend/models/Funcion.model.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
-
-const Role = sequelize.define('Role', {
-  role_id: {
+const Funcion = sequelize.define('Funcion', {
+  funcion_id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
   },
-  role_name: {
-    type: DataTypes.STRING(50),
+  funcion_name: {
+    type: DataTypes.STRING(100),
     allowNull: false,
     unique: true
   },
-  role_descripcion: { 
+  funcion_descripcion: {
     type: DataTypes.TEXT,
     allowNull: true
   },
-  role_state: {
+  funcion_state: {
     type: DataTypes.BOOLEAN,
     defaultValue: true
   }
 }, {
-  tableName: 'roles',
+  tableName: 'funciones', 
   timestamps: false
 });
 
-module.exports = Role;
+module.exports = Funcion;

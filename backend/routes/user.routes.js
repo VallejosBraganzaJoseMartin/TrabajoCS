@@ -9,4 +9,7 @@ router.get('/:id', authenticateToken, userController.getUserById);
 router.put('/:id', authenticateToken, userController.updateUser);
 router.delete('/:id', authenticateToken, userController.deleteUser);
 
+// Ruta para asignar roles a un usuario
+router.post('/:id/roles', authenticateToken, userController.assignRolesToUser);
+
 module.exports = router;

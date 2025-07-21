@@ -15,10 +15,13 @@ const ManagePizzaIngredients = () => {
   const [quantity, setQuantity] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
   const [adding, setAdding] = useState(false);
 
   useEffect(() => {
     setLoading(true);
+    setError(null);
+    setSuccessMessage(null);
     Promise.all([
       pizzasApi.getById(id),
       ingredientsApi.getAllByPizzaId(id),
@@ -27,7 +30,10 @@ const ManagePizzaIngredients = () => {
       .then(([pizzaRes, pizzaIngs, allIngs]) => {
         setPizza(pizzaRes.data || pizzaRes);
         setCurrentIngredients(Array.isArray(pizzaIngs) ? pizzaIngs : []);
-        setAllIngredients(Array.isArray(allIngs.data) ? allIngs.data : []);
+        const activeIngredients = Array.isArray(allIngs.data) 
+          ? allIngs.data.filter(ing => ing.ing_state === true)
+          : [];
+        setAllIngredients(activeIngredients);
       })
       .catch(() => setError("Error al cargar ingredientes"))
       .finally(() => setLoading(false));
@@ -35,7 +41,19 @@ const ManagePizzaIngredients = () => {
 
   const handleAdd = async (e) => {
     e.preventDefault();
-    if (!selectedIngId || !quantity) return;
+    setError(null);
+    setSuccessMessage(null);
+
+    if (!selectedIngId) {
+      setError("Debe seleccionar un ingrediente");
+      return;
+    }
+    
+    if (!quantity) {
+      setError("Debe ingresar la cantidad del ingrediente");
+      return;
+    }
+    
     setAdding(true);
     try {
       await ingredientsApi.addToPizza({
@@ -47,28 +65,66 @@ const ManagePizzaIngredients = () => {
       setCurrentIngredients(Array.isArray(pizzaIngs) ? pizzaIngs : []);
       setSelectedIngId("");
       setQuantity("");
-    } catch {
-      setError("No se pudo añadir el ingrediente");
+      setSuccessMessage("Ingrediente agregado correctamente");
+    } catch (error) {
+      // Extraer mensaje detallado del error
+      let errorMessage = "No se pudo añadir el ingrediente";
+      
+      if (error.response && error.response.data) {
+        if (error.response.data.details) {
+          errorMessage = error.response.data.details;
+        } else if (error.response.data.message) {
+          errorMessage = error.response.data.message;
+        }
+      }
+      
+      setError(errorMessage);
     } finally {
       setAdding(false);
     }
   };
 
   const handleDelete = async (ing_id) => {
+    setError(null);
+    setSuccessMessage(null);
     try {
       await ingredientsApi.removeFromPizza(id, ing_id);
       setCurrentIngredients(currentIngredients.filter(i => i.ing_id !== ing_id));
-    } catch {
-      setError("No se pudo eliminar el ingrediente");
+      setSuccessMessage("Ingrediente eliminado correctamente");
+    } catch (error) {
+      let errorMessage = "No se pudo eliminar el ingrediente";
+      
+      if (error.response && error.response.data) {
+        if (error.response.data.details) {
+          errorMessage = error.response.data.details;
+        } else if (error.response.data.message) {
+          errorMessage = error.response.data.message;
+        }
+      }
+      
+      setError(errorMessage);
     }
   };
 
   const handleEditQuantity = async (ing_id, newQty) => {
+    setError(null);
+    setSuccessMessage(null);
     try {
       await ingredientsApi.updateQuantity(id, ing_id, newQty);
       setCurrentIngredients(currentIngredients.map(i => i.ing_id === ing_id ? { ...i, piz_ing_quantity: newQty } : i));
-    } catch {
-      setError("No se pudo actualizar la cantidad");
+      setSuccessMessage("Cantidad actualizada correctamente");
+    } catch (error) {
+      let errorMessage = "No se pudo actualizar la cantidad";
+      
+      if (error.response && error.response.data) {
+        if (error.response.data.details) {
+          errorMessage = error.response.data.details;
+        } else if (error.response.data.message) {
+          errorMessage = error.response.data.message;
+        }
+      }
+      
+      setError(errorMessage);
     }
   };
 
@@ -107,7 +163,8 @@ const ManagePizzaIngredients = () => {
                       <span className="font-semibold text-gray-700">{ing.ing_name}</span>
                       <div className="flex items-center space-x-2">
                         <input
-                          type="text"
+                          type="number"
+                          min="1"
                           value={ing.piz_ing_quantity}
                           onChange={e => handleEditQuantity(ing.ing_id, e.target.value)}
                           className="w-24 text-sm border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500"
@@ -134,45 +191,67 @@ const ManagePizzaIngredients = () => {
                 Añadir Nuevo Ingrediente
               </h2>
               <div className="bg-white rounded-lg shadow-md p-6">
-                <form className="space-y-4" onSubmit={handleAdd}>
+                {allIngredients.length === 0 ? (
+                  <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded" role="alert">
+                    <p className="text-sm">No hay ingredientes activos disponibles para agregar.</p>
+                  </div>
+                ) : (
+                  <form className="space-y-4" onSubmit={handleAdd}>
                   <div>
                     <label htmlFor="ingredient" className="block text-sm font-medium text-gray-700">Ingrediente</label>
                     <select
                       id="ingredient"
                       name="ing_id"
-                      className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md"
+                      className={`mt-1 block w-full pl-3 pr-10 py-2 text-base sm:text-sm rounded-md ${!selectedIngId && error ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-red-500 focus:border-red-500'}`}
                       value={selectedIngId}
                       onChange={e => setSelectedIngId(e.target.value)}
+                      required
                     >
-                      <option value="">Selecciona un ingrediente...</option>
-                      {allIngredients.map(ing => (
-                        <option key={ing.ing_id} value={ing.ing_id}>{ing.ing_name}</option>
-                      ))}
+                      <option value="" disabled>Selecciona un ingrediente...</option>
+                      {allIngredients.length > 0 ? (
+                        allIngredients.map(ing => (
+                          <option key={ing.ing_id} value={ing.ing_id}>{ing.ing_name}</option>
+                        ))
+                      ) : (
+                        <option value="" disabled>No hay ingredientes activos disponibles</option>
+                      )}
                     </select>
                   </div>
                   <div>
                     <label htmlFor="quantity" className="block text-sm font-medium text-gray-700">Cantidad</label>
                     <input
-                      type="text"
+                      type="number"
                       name="piz_ing_quantity"
                       id="quantity"
-                      className="mt-1 focus:ring-red-500 focus:border-red-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                      min="1"
+                      className={`mt-1 block w-full shadow-sm sm:text-sm rounded-md ${!quantity && error ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-red-500 focus:border-red-500'}`}
                       placeholder="Ej: 100 gr"
                       value={quantity}
                       onChange={e => setQuantity(e.target.value)}
+                      required
                     />
                   </div>
                   <div className="text-right">
                     <button
                       type="submit"
                       className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                      disabled={adding}
+                      disabled={adding || allIngredients.length === 0}
                     >
-                      Añadir a la Pizza
+                      {adding ? 'Agregando...' : 'Añadir a la Pizza'}
                     </button>
                   </div>
+                {error && (
+                  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mt-4" role="alert">
+                    <p className="text-sm">{error}</p>
+                  </div>
+                )}
+                {successMessage && (
+                  <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mt-4" role="alert">
+                    <p className="text-sm">{successMessage}</p>
+                  </div>
+                )}
                 </form>
-                {error && <div className="text-red-500 mt-2 text-sm">{error}</div>}
+                )}
               </div>
             </div>
           </div>

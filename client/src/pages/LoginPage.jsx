@@ -1,26 +1,70 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { authApi } from '../api/auth';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { usePermission } from '../contexts/PermissionContext';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const { login } = useAuth();
+  const { hasFunction } = usePermission();
   const navigate = useNavigate();
+  
+  // Función para determinar la página de redirección según los permisos
+  const getRedirectPath = (userFunctions) => {
+    if (userFunctions.includes('ver_menu')) {
+      return '/menu';
+    } else if (userFunctions.includes('ver_pizzas') || userFunctions.includes('gestionar_pizzas')) {
+      return '/pizzas';
+    } else if (userFunctions.includes('ver_ingredientes') || userFunctions.includes('gestionar_ingredientes')) {
+      return '/ingredientes';
+    } else if (userFunctions.includes('gestionar_usuarios') || userFunctions.includes('ver_usuarios')) {
+      return '/usuarios';
+    } else if (userFunctions.includes('gestionar_roles')) {
+      return '/roles';
+    } else if (userFunctions.includes('gestionar_funciones')) {
+      return '/funciones';
+    } else {
+      return '/acceso-denegado';
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(''); // Limpiar errores previos
     try {
       const response = await authApi.login({ user_email: email, user_password: password });
       console.log('login response:', response);
       // Soporta ambas estructuras: axios (response.data) o fetch (response)
-      const token = response.data?.token || response.token;
-      const user = response.data?.user || response.user;
+      const token = response.token;
+      const user = response.user;
+      
+      console.log('Usuario logueado:', user);
+      
       login(token, user);
+      
+      // Siempre redirigir al menú después del login
       navigate('/menu', { replace: true });
-    } catch (error) {
-      console.log("todo mal", error)
+    } catch (err) {
+      console.log("Error en el login:", err);
+      
+      // Mensaje de error predeterminado
+      let errorMessage = 'Credenciales incorrectas. Por favor, revise su correo electrónico o contraseña.';
+      
+      // Usamos el mensaje predeterminado para todos los errores de autenticación
+      if (err.response && err.response.status === 401) {
+        errorMessage = 'Credenciales incorrectas. Por favor, revise su correo electrónico o contraseña.';
+      } else if (err.response && err.response.data && err.response.data.message) {
+        // Para otros tipos de errores, usamos el mensaje del servidor
+        errorMessage = err.response.data.message;
+      } else if (err.message && !err.message.includes('401')) {
+        // Error general que no sea de autenticación
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
     }
   };
 
@@ -36,7 +80,7 @@ export default function LoginPage() {
         <div className="absolute inset-0 bg-black bg-opacity-50"></div>
         <div className="absolute bottom-10 left-10 text-white">
           <h1 className="text-4xl font-bold">PizzAPI</h1>
-          <p className="mt-2 text-lg text-gray-300">Mejor que el siiu.</p>
+          <p className="mt-2 text-lg text-gray-300">Las mejores pizzas.</p>
         </div>
       </div>
 
@@ -52,7 +96,7 @@ export default function LoginPage() {
               <span>PizzAPI</span>
             </a>
             <h2 className="mt-6 text-3xl font-extrabold text-gray-900">Bienvenido de nuevo</h2>
-            <p className="mt-2 text-sm text-gray-600">Por favor, inicia sesión para acceder al papusistema.</p>
+            <p className="mt-2 text-sm text-gray-600">Por favor, inicia sesión para acceder al sistema.</p>
           </div>
 
           <form className="space-y-6" autoComplete="off" onSubmit={handleSubmit}>
@@ -94,6 +138,12 @@ export default function LoginPage() {
               </div>
             </div>
 
+            {error && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <span className="block sm:inline">{error}</span>
+              </div>
+            )}
+            
             <div>
               <button
                 type="submit"

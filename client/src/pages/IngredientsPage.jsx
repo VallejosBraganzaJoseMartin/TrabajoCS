@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import Sidebar from "../components/Sidebar";
-import Header from "../components/Header";
+import Layout from "../components/Layout";
 import IngredientTable from "../components/IngredientTable";
 import IngredientModal from "../components/IngredientModal";
+import ConfirmationModal from "../components/ConfirmationModal";
+import ErrorModal from "../components/ErrorModal";
 import { ingredientsApi } from "../api/ingredients";
 
 const IngredientsPage = () => {
@@ -12,6 +13,17 @@ const IngredientsPage = () => {
   const [ingredients, setIngredients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [errorModal, setErrorModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    details: ''
+  });
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    id: null,
+    name: ''
+  });
 
   useEffect(() => {
     const fetchIngredients = async () => {
@@ -34,6 +46,7 @@ const IngredientsPage = () => {
     setEditingIngredient(null);
     setModalOpen(true);
   };
+  
   const handleCloseModal = () => setModalOpen(false);
 
   const handleSubmit = async (e) => {
@@ -54,20 +67,58 @@ const IngredientsPage = () => {
       setIngredients(response.data || response);
       setModalOpen(false);
     } catch (err) {
-      alert('Error al guardar el ingrediente');
       console.error('Error:', err);
+      
+      // Mostrar mensaje de error en modal
+      let errorMessage = 'Error al guardar el ingrediente';
+      let errorDetails = '';
+      
+      if (err.response && err.response.data) {
+        if (err.response.data.message) {
+          errorMessage = err.response.data.message;
+        }
+        if (err.response.data.details) {
+          errorDetails = err.response.data.details;
+        }
+      }
+      
+      setErrorModal({
+        isOpen: true,
+        title: '¡Error al guardar!',
+        message: errorMessage,
+        details: errorDetails
+      });
     }
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('¿Estás seguro de que quieres eliminar este ingrediente?')) {
-      try {
-        await ingredientsApi.delete(id);
-        setIngredients(ingredients.filter(ingredient => ingredient.ing_id !== id));
-      } catch (err) {
-        alert('Error al eliminar el ingrediente');
-        console.error('Error:', err);
-      }
+  // Abrir modal de confirmación
+  const openConfirmModal = (id, name) => {
+    setConfirmModal({
+      isOpen: true,
+      id,
+      name
+    });
+  };
+
+  // Cerrar modal de confirmación
+  const closeConfirmModal = () => {
+    setConfirmModal({
+      isOpen: false,
+      id: null,
+      name: ''
+    });
+  };
+
+  // Eliminar ingrediente
+  const handleDelete = async () => {
+    try {
+      await ingredientsApi.delete(confirmModal.id);
+      setIngredients(ingredients.filter(ingredient => ingredient.ing_id !== confirmModal.id));
+      closeConfirmModal();
+    } catch (err) {
+      setError('Error al eliminar el ingrediente');
+      console.error('Error:', err);
+      closeConfirmModal();
     }
   };
 
@@ -78,36 +129,72 @@ const IngredientsPage = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <Sidebar />
-      <div className="flex flex-col flex-1 overflow-y-auto">
-        <Header />
-        <main className="p-8">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-800">Mis Ingredientes</h1>
-            <button
-              className="flex items-center bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300"
-              onClick={handleOpenModal}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              Añadir Nuevo Ingrediente
-            </button>
-          </div>
-          <div>
-            <h2 className="text-lg font-medium text-gray-600 mb-4 flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-              Listado de Ingredientes
-            </h2>
-            <IngredientTable ingredients={ingredients} loading={loading} error={error} onDelete={handleDelete} onEdit={handleEdit} />
-          </div>
-        </main>
-        <IngredientModal open={modalOpen} onClose={handleCloseModal} onSubmit={handleSubmit} ingredient={editingIngredient} mode={modalMode} />
+    <Layout title="Ingredientes">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Mis Ingredientes</h1>
+        <button
+          className="flex items-center justify-center bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300"
+          onClick={handleOpenModal}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+          Añadir Nuevo Ingrediente
+        </button>
       </div>
-    </div>
+      
+      <div className="bg-white shadow rounded-lg p-4 md:p-6">
+        <h2 className="text-lg font-medium text-gray-600 mb-4 flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          Listado de Ingredientes
+        </h2>
+        
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {error}
+          </div>
+        )}
+        
+        <div className="overflow-x-auto">
+          <IngredientTable 
+            ingredients={ingredients} 
+            loading={loading} 
+            error={error} 
+            onDelete={openConfirmModal} 
+            onEdit={handleEdit} 
+          />
+        </div>
+      </div>
+      
+      <IngredientModal 
+        open={modalOpen} 
+        onClose={handleCloseModal} 
+        onSubmit={handleSubmit} 
+        ingredient={editingIngredient} 
+        mode={modalMode} 
+      />
+      
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        onClose={closeConfirmModal}
+        onConfirm={handleDelete}
+        title="Eliminar Ingrediente"
+        message={`¿Estás seguro de que deseas eliminar el ingrediente "${confirmModal.name}"? Esta acción no se puede deshacer.`}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        type="danger"
+      />
+      
+      <ErrorModal
+        isOpen={errorModal.isOpen}
+        onClose={() => setErrorModal({...errorModal, isOpen: false})}
+        title={errorModal.title}
+        message={errorModal.message}
+        details={errorModal.details}
+      />
+    </Layout>
   );
 };
 
