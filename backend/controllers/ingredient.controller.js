@@ -1,4 +1,6 @@
 const Ingredient = require('../models/Ingredient.model');
+const PizzaIngredient = require('../models/PizzaIngredient.model');
+const sequelize = require('../config/database');
 
 const getIngredients = async (req, res) => {
   try {
@@ -79,20 +81,36 @@ const updateIngredient = async (req, res) => {
 
 const deleteIngredient = async (req, res) => {
   const id = req.params.id;
+  const transaction = await sequelize.transaction();
+  
   try {
     const ingredient = await Ingredient.findByPk(id);
     if (!ingredient) {
+      await transaction.rollback();
       return res.status(404).json({ message: 'Ingrediente no encontrado' });
     }
-    await ingredient.destroy();
+    
+    // Primero eliminar las referencias en la tabla intermedia
+    await PizzaIngredient.destroy({
+      where: { ing_id: id },
+      transaction
+    });
+    
+    // Luego eliminar el ingrediente
+    await ingredient.destroy({ transaction });
+    
+    await transaction.commit();
+    
     res.status(200).json({
       message: 'Ingrediente eliminado',
       data: ingredient
     });
   } catch (error) {
+    await transaction.rollback();
+    console.error('Error al eliminar el ingrediente:', error);
     res.status(500).json({
       message: 'Error al eliminar el ingrediente',
-      error
+      error: error.message
     });
   }
 };

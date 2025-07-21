@@ -59,6 +59,14 @@ const login = async (req, res) => {
       });
     }
 
+    // Verificar si el usuario está activo
+    if (user.user_state === false) {
+      return res.status(403).json({ 
+        message: 'Cuenta desactivada', 
+        details: 'Su cuenta ha sido desactivada. Contacte al administrador.' 
+      });
+    }
+
     const valid = await bcrypt.compare(user_password, user.user_password);
     if (!valid) {
       return res.status(401).json({ 

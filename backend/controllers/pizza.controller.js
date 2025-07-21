@@ -1,4 +1,6 @@
 const Pizza = require('../models/Pizza.model');
+const PizzaIngredient = require('../models/PizzaIngredient.model');
+const sequelize = require('../config/database');
 //pizza xd
 const getPizzas = async (req, res) => {
   try {
@@ -79,21 +81,37 @@ const updatePizza = async (req, res) => {
 
 const deletePizza = async (req, res) => {
   const id = req.params.id;
+  const transaction = await sequelize.transaction();
+  
   try {
     // Buscar por piz_id explícitamente
     const pizza = await Pizza.findOne({ where: { piz_id: id } });
     if (!pizza) {
+      await transaction.rollback();
       return res.status(404).json({ message: 'Pizza no encontrada' });
     }
-    await pizza.destroy();
+    
+    // Primero eliminar las referencias en la tabla intermedia
+    await PizzaIngredient.destroy({
+      where: { piz_id: id },
+      transaction
+    });
+    
+    // Luego eliminar la pizza
+    await pizza.destroy({ transaction });
+    
+    await transaction.commit();
+    
     res.status(200).json({
       message: 'Pizza eliminada',
       data: pizza
     });
   } catch (error) {
+    await transaction.rollback();
+    console.error('Error al eliminar la pizza:', error);
     res.status(500).json({
       message: 'Error al eliminar la pizza',
-      error
+      error: error.message
     });
   }
 };
