@@ -3,7 +3,7 @@ const Role = require('../models/Role.model');
 const Funcion = require('../models/Funcion.model');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { sendLoginNotification } = require('../services/email.service');
+const { sendLoginNotification, sendFailedLoginNotification, sendWelcomeNotification } = require('../services/email.service');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
 
@@ -27,6 +27,13 @@ const register = async (req, res) => {
       user_password: hashedPassword,
       role_id
     });
+
+    // Enviar notificación de bienvenida por email (no bloqueante)
+    sendWelcomeNotification(
+      user_email,
+      `${user_names} ${user_surenames}`
+    ).catch(err => console.error('Error enviando notificación de bienvenida:', err));
+
     res.status(201).json({ message: 'Usuario registrado', data: user });
   } catch (error) {
     res.status(500).json({ message: 'Error al registrar usuario', error });
@@ -67,6 +74,16 @@ const login = async (req, res) => {
 
     const valid = await bcrypt.compare(user_password, user.user_password);
     if (!valid) {
+      // Enviar notificación de intento fallido por email (no bloqueante)
+      const attemptInfo = {
+        ip: req.ip || req.connection?.remoteAddress || 'Desconocida'
+      };
+      sendFailedLoginNotification(
+        user.user_email,
+        `${user.user_names} ${user.user_surenames}`,
+        attemptInfo
+      ).catch(err => console.error('Error enviando notificación de intento fallido:', err));
+
       return res.status(401).json({ 
         message: 'Credenciales incorrectas', 
         details: 'Por favor, revise su correo electrónico o contraseña' 
