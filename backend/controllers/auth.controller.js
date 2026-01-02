@@ -3,6 +3,7 @@ const Role = require('../models/Role.model');
 const Funcion = require('../models/Funcion.model');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { sendLoginNotification } = require('../services/email.service');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
 
@@ -83,6 +84,16 @@ const login = async (req, res) => {
         user_email: user.user_email, 
         roles: userRoles 
     }, JWT_SECRET, { expiresIn: '8h' });
+
+    // Enviar notificación de inicio de sesión por email (no bloqueante)
+    const loginInfo = {
+      ip: req.ip || req.connection?.remoteAddress || 'Desconocida'
+    };
+    sendLoginNotification(
+      user.user_email, 
+      `${user.user_names} ${user.user_surenames}`,
+      loginInfo
+    ).catch(err => console.error('Error enviando notificación:', err));
 
     res.status(200).json({
         message: 'Login exitoso',
